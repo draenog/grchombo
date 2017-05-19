@@ -1,6 +1,7 @@
 #ifndef GRAMRLEVEL_HPP_
 #define GRAMRLEVEL_HPP_
 
+#include "AMR.H"
 #include "AMRLevel.H"
 #include "SimulationParameters.hpp"
 #include "ProfilingInfo.hpp"
@@ -12,7 +13,7 @@
 class GRAMRLevel : public AMRLevel
 {
 protected:
-    GRAMRLevel(const SimulationParameters& a_p, int a_verbosity, ProfilingInfo * a_profilingInfo = NULL);
+  GRAMRLevel(AMR * a_amr, const SimulationParameters& a_p, int a_verbosity, ProfilingInfo * a_profilingInfo = NULL);
 
     virtual
     ~GRAMRLevel();
@@ -185,6 +186,9 @@ protected:
     CoarseAverage m_coarse_average;
     FourthOrderFineInterp m_fine_interp;
     DisjointBoxLayout m_grids;
+
+    AMR * m_amr;
+
 };
 
 #endif /* GRAMRLEVEL_HPP_ */

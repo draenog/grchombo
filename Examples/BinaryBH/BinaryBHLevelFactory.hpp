@@ -2,6 +2,7 @@
 #define BINARYBHLEVELFACTORY_HPP_
 
 //General includes:
+#include "AMR.H"
 #include "AMRLevelFactory.H"
 #include "ProfilingInfo.hpp"
 #include "SimulationParameters.hpp"
@@ -15,7 +16,7 @@ public:
     BinaryBHLevelFactory(SimulationParameters& a_sim_params, ProfilingInfo * profilingInfo=nullptr);
 
     virtual
-    AMRLevel* new_amrlevel() const;
+    AMRLevel* new_amrlevel(AMR * a_amr) const;
 
     virtual
     ~BinaryBHLevelFactory();
@@ -37,9 +38,9 @@ BinaryBHLevelFactory::~BinaryBHLevelFactory ()
 
 // "virtual constructor"
 AMRLevel*
-BinaryBHLevelFactory::new_amrlevel() const
+BinaryBHLevelFactory::new_amrlevel(AMR * a_amr) const
 {
-    BinaryBHLevel* binary_bh_level_ptr = new BinaryBHLevel (m_p, m_p.verbosity, m_profilingInfo);
+    BinaryBHLevel* binary_bh_level_ptr = new BinaryBHLevel (a_amr,m_p, m_p.verbosity, m_profilingInfo);
     binary_bh_level_ptr->initialDtMultiplier(m_p.dt_multiplier);
     return (static_cast <AMRLevel*> (binary_bh_level_ptr));
 }

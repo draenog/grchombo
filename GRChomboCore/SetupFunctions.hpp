@@ -8,7 +8,7 @@
 using std::endl;
 using std::cerr;
 #include "ParmParse.H"
-#include "AMR.H"
+#include "GRAMR.H"
 #include "AMRLevelFactory.H"
 
 #ifdef EQUATION_DEBUG_MODE
@@ -76,7 +76,7 @@ void mainFinalize()
 #endif
 }
 
-void setupAMRObject(AMR& amr, AMRLevelFactory& a_factory)
+void setupAMRObject(GRAMR& amr, AMRLevelFactory& a_factory)
 {
     //Some hard-coded parameters:
     //The buffer is width of ghost cells + additional_grid_buffer
@@ -232,7 +232,8 @@ void setupAMRObject(AMR& amr, AMRLevelFactory& a_factory)
 	pp.query("catalyst_scripts",catalyst_scripts);
 
 	int catalyst_numscripts;
-	pp.query("catalyst_numscripts",catalyst_numscripts);
+	if(!pp.contains("catalyst_numscripts"))catalyst_numscripts = 1;
+	else pp.query("catalyst_numscripts",catalyst_numscripts);
 
 	amr.setupCatalyst(catalyst_numscripts,catalyst_scripts);
       }

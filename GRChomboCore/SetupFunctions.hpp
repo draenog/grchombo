@@ -223,6 +223,24 @@ void setupAMRObject(AMR& amr, AMRLevelFactory& a_factory)
         MayDay::Error("GRChombo restart only defined with hdf5");
 #endif
     }
+
+
+#ifdef USE_CATALYST
+    if (pp.contains("catalyst_scripts"))
+      {
+	std::string catalyst_scripts;
+	pp.query("catalyst_scripts",catalyst_scripts);
+
+	int catalyst_numscripts;
+	pp.query("catalyst_numscripts",catalyst_numscripts);
+
+	amr.setupCatalyst(catalyst_numscripts,catalyst_scripts);
+      }
+    else
+      {
+	cout<<"no python script for catalyst in the parameter file"<<endl;
+      }
+#endif
 }
 
 #endif /* SETUP_FUNCTIONS_HPP_ */

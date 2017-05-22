@@ -133,9 +133,23 @@ GRAMRLevel::postTimeStep ()
         finer_gr_amr_level_ptr->m_coarse_average.averageToCoarse (m_state_new, finer_gr_amr_level_ptr->m_state_new);
     }
 
+
+
+#ifdef USE_CATALYST
+    if (m_finer_level_ptr == nullptr || m_level == amr->m_renderLevel)
+      {
+	//TODO
+
+	
+
+	if ( m_verbosity ) pout () << "GRAMRLevel::postTimeStep " << m_level << " calling catalyst done" << endl;
+      }
+#endif
+    
     specificPostTimeStep();
 
     if ( m_verbosity ) pout () << "GRAMRLevel::postTimeStep " << m_level << " finished" << endl;
+
 }
 
 

@@ -235,7 +235,12 @@ void setupAMRObject(GRAMR& amr, AMRLevelFactory& a_factory)
 	if(!pp.contains("catalyst_numscripts"))catalyst_numscripts = 1;
 	else pp.query("catalyst_numscripts",catalyst_numscripts);
 
-	amr.setupCatalyst(catalyst_numscripts,catalyst_scripts);
+	int renderLevel;
+	if(!pp.contains("renderLevel"))renderLevel=10;
+	else pp.query("renderLevel",renderLevel);
+
+	amr.setupCatalyst(catalyst_numscripts,catalyst_scripts,renderLevel);
+
       }
     else
       {

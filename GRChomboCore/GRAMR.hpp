@@ -19,7 +19,7 @@ public:
 
 
 #ifdef USE_CATALYST
-  void setupCatalyst(int a_num_pyScript = 0, string a_pyScript);
+  void setupCatalyst(int a_num_pyScript = 0, string a_pyScript, int a_renderLevel);
   Insitu m_insitu;
   int m_renderLevel;
 #endif

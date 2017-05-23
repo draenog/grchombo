@@ -18,7 +18,7 @@ public:
   Insitu(GRAMR * a_amr, int a_num_pyScript, string a_pyScript);
   ~Insitu();
 
-  void initialise(GRAMR * a_amr = NULL, int a_num_pyScript, string a_pyScript);
+  void initialise(GRAMR * a_amr, int a_num_pyScript, string a_pyScript);
   void finalise();
 
 

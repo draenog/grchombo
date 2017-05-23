@@ -19,14 +19,14 @@ Insitu::~Insitu()
 {
 }
 
-void Insitu::initialise(GRAMR * a_amr = NULL, int a_num_pyScript = 0, string a_pyScript)
+void Insitu::initialise(GRAMR * a_amr, int a_num_pyScript, string a_pyScript)
 {
-  if(amr_in!=NULL)
+  if(a_amr != NULL)
     {
       m_amr = a_amr;
       if(a_num_pyScript!=0)
 	{
-	  m_num_PyScript = a_num_pyScript;
+	  m_num_pyScript = a_num_pyScript;
 	  m_pyScript = a_pyScript;
 
 	  //TODO: initialise the coprocessor

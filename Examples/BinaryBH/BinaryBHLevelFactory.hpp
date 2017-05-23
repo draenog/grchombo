@@ -28,7 +28,7 @@ protected:
 };
 
 
-BinaryBHLevelFactory::BinaryBHLevelFactory (SimulationParameters& a_sim_params, ProfilingInfo * a_profilingInfo):
+BinaryBHLevelFactory::BinaryBHLevelFactory (GRAMR * a_amr, SimulationParameters& a_sim_params, ProfilingInfo * a_profilingInfo):
   m_amr(a_amr),m_p (a_sim_params), m_profilingInfo (a_profilingInfo)
 {
 }

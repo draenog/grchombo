@@ -13,7 +13,7 @@
 class GRAMRLevel : public AMRLevel
 {
 protected:
-  GRAMRLevel(AMR * a_amr, const SimulationParameters& a_p, int a_verbosity, ProfilingInfo * a_profilingInfo = NULL);
+    GRAMRLevel(AMR * a_amr, const SimulationParameters& a_p, int a_verbosity, ProfilingInfo * a_profilingInfo = NULL);
 
     virtual
     ~GRAMRLevel();

@@ -22,9 +22,9 @@ public:
     ~BinaryBHLevelFactory();
 
 protected:
-  GRAMR * m_amr;
-  SimulationParameters m_p;
-  ProfilingInfo* m_profilingInfo;
+    GRAMR * m_amr;
+    SimulationParameters m_p;
+    ProfilingInfo* m_profilingInfo;
 };
 
 

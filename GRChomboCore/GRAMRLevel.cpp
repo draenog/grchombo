@@ -6,11 +6,10 @@
 #include "ComputeModGrad.hpp"
 #include "GRAMRLevel.hpp"
 
-GRAMRLevel::GRAMRLevel (AMR * a_amr,const SimulationParameters &a_p, int a_verbosity, ProfilingInfo * a_profilingInfo)
-  : m_num_ghosts (a_p.num_ghosts), m_amr(a_amr), m_p(a_p), m_verbosity (a_verbosity), m_profilingInfo(a_profilingInfo)
+GRAMRLevel::GRAMRLevel (AMR * a_amr, const SimulationParameters &a_p, int a_verbosity, ProfilingInfo * a_profilingInfo)
+: m_num_ghosts (a_p.num_ghosts), m_amr(a_amr), m_p(a_p), m_verbosity (a_verbosity), m_profilingInfo(a_profilingInfo)
 {
     if ( m_verbosity ) pout () << "GRAMRLevel default constructor" << endl;
-
 }
 
 GRAMRLevel::~GRAMRLevel ()
@@ -140,16 +139,15 @@ GRAMRLevel::postTimeStep ()
       {
 	//TODO
 
-	
+
 
 	if ( m_verbosity ) pout () << "GRAMRLevel::postTimeStep " << m_level << " calling catalyst done" << endl;
       }
 #endif
-    
+
     specificPostTimeStep();
 
     if ( m_verbosity ) pout () << "GRAMRLevel::postTimeStep " << m_level << " finished" << endl;
-
 }
 
 

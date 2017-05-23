@@ -1,7 +1,7 @@
 #ifndef INSITU_HPP
 #define INSITU_HPP
 
-#include GRAMR.hpp
+#include "../GRAMR.hpp"
 
 
 

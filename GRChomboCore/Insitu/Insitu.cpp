@@ -1,7 +1,7 @@
 #include "Insitu.hpp"
 #include "../GRAMR.hpp"
 
-
+#include <vtkCPProcessor.h>
 
 Insitu::Insitu()
 {

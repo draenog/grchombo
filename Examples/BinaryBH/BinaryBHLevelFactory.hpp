@@ -2,7 +2,7 @@
 #define BINARYBHLEVELFACTORY_HPP_
 
 //General includes:
-#include "GRAMR.H"
+#include "GRAMR.hpp"
 #include "AMRLevelFactory.H"
 #include "ProfilingInfo.hpp"
 #include "SimulationParameters.hpp"

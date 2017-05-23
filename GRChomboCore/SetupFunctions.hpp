@@ -8,7 +8,7 @@
 using std::endl;
 using std::cerr;
 #include "ParmParse.H"
-#include "GRAMR.H"
+#include "GRAMR.hpp"
 #include "AMRLevelFactory.H"
 
 #ifdef EQUATION_DEBUG_MODE

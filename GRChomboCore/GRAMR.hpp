@@ -8,7 +8,7 @@
 #endif
 
 
-class GRAMR :: public AMR
+class GRAMR : public AMR
 {
 
 public:
@@ -25,7 +25,7 @@ public:
 #endif
 
 
-}
+};
 
 
 

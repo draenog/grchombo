@@ -3,9 +3,14 @@
 
 #include "../GRAMR.hpp"
 
-
-
-
+#include <vtkCPProcessor.h>
+#include <vtkImageData.h>
+#include <vtkCPDataDescription.h>
+#include <vtkCPInputDataDescription.h>
+#include <vtkCPPythonScriptPipeline.h>
+#include <vtkDoubleArray.h>
+#include <vtkPointData.h>
+#include <vtkNew.h>
 
 
 class GRAMR;
@@ -34,8 +39,8 @@ private:
   int m_num_pyScript;
   string m_pyScript;
 
-  //  vtkCPProcessor* m_processor; // static data
-  //  vtkMultiBlockDataSet* m_vtkGrid;
+  vtkCPProcessor* m_processor; // static data
+  vtkImageData * m_vtkGrid;
 
 
 };

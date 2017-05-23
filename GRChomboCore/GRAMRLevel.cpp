@@ -139,7 +139,9 @@ GRAMRLevel::postTimeStep ()
       {
 	//TODO
 
-
+	m_amr.insitu.updateVTKgrid();
+	m_amr.insitu.addArray("test",0);
+	m_amr.insitu.coprocess();
 
 	if ( m_verbosity ) pout () << "GRAMRLevel::postTimeStep " << m_level << " calling catalyst done" << endl;
       }

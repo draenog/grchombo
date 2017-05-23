@@ -1,5 +1,5 @@
 #include "Insitu.hpp"
-#include "GRAMR.hpp"
+#include "../GRAMR.hpp"
 
 
 
@@ -23,7 +23,7 @@ void Insitu::initialise(GRAMR * a_amr = NULL, int a_num_pyScript = 0, string a_p
 {
   if(amr_in!=NULL)
     {
-      amr = amr_in;
+      m_amr = a_amr;
       if(a_num_pyScript!=0)
 	{
 	  m_num_PyScript = a_num_pyScript;

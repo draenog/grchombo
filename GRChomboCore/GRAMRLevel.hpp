@@ -159,6 +159,7 @@ protected:
 
 public:
     const int m_num_ghosts;
+    GRLevelData m_state_new;
     // periodicity information
     //  static const int s_periodicity[SpaceDim];
 
@@ -166,7 +167,6 @@ protected:
     // state vector at old time
     GRLevelData m_state_old;
     // state vector at new time
-    GRLevelData m_state_new;
     // grid spacing
     Real m_dx;
 

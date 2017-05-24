@@ -24,7 +24,13 @@ public:
   int m_renderLevel;
 #endif
 
-
+  int finest_level() {
+    return m_finest_level;
+  }
+ 
+  AMRLevel* amrlevels(int i) {
+    return m_amrlevels[i];
+  }
 };
 
 

@@ -99,7 +99,9 @@ void Insitu::updateVTKgrid()
       int nbox = diter.size(); //TODO change to the correct iterator
       blockPerLevel[ilevel] = nbox;
     }
-  m_vtkGrid.Intialize(numLevels,blockPerLevel);
+  blockPerLevel[0] = 1;
+  //m_vtkGrid->Initialize(numLevels,blockPerLevel);
+  m_vtkGrid->Initialize(1,blockPerLevel);
 
   int power2 =1;
   float spacing=1.0;
@@ -108,7 +110,7 @@ void Insitu::updateVTKgrid()
       GRAMRLevel *level = (GRAMRLevel *) m_amr->amrlevels(ilevel);
       const DisjointBoxLayout& level_domain = level->m_state_new.disjointBoxLayout();
       DataIterator diter(level_domain);
-      
+      int nbox = diter.size();
       for(int ibox = 0; ibox < nbox; ++ibox)
       {
           DataIndex di = diter[ibox];
@@ -128,30 +130,55 @@ void Insitu::updateVTKgrid()
 	  extent[1] = bigEnd[1] - smallEnd[1] + 1;
 	  extent[2] = bigEnd[2] - smallEnd[2] + 1;
 
-	  ug->SetOrigin(origin);
+	  //ug->SetOrigin(origin[0],origin[1],origin[2]);
+	  ug->SetOrigin(0, 0, 0);
 	  ug->SetSpacing(spacing,spacing,spacing);
-	  ug->SetExtent(0,extent[0],0,extent[1],0,extent[2]);
+	  //ug->SetExtent(0,extent[0],0,extent[1],0,extent[2]);
+	  ug->SetExtent(0,10,0,10,0,10);
+          cerr << "BOUNDS: " << endl;
+          double * bounds = ug->GetBounds();
+          for(int i=0; i<6; i++) {
+              cerr << "       " << bounds[i] << endl;
+          }
 
 
+	  vtkAMRBox box(smallEnd[0],smallEnd[1],smallEnd[2], bigEnd[0] + 1,bigEnd[1] + 1,bigEnd[2] + 1);
+	  
+	  if (ilevel==0 && ibox==0)
+          {
+	  //m_vtkGrid->SetAMRBox(ilevel,ibox,box);
+	  m_vtkGrid->SetAMRBox(0,0,box);
+          }
 
 	  //TODO loop ofer every non-local box BUT:
 	  // if the box is not local:
 	  // m_vtkGrid->SetDataSet(ilevel,ibox,NULL);
 	  // else:
-	  m_vtkGrid->SetDataSet(ilevel,ibox,ug);
-	  ug->Delete();
+	  if (ilevel==0 && ibox==0)
+          {
+          cerr << "MAKING ONE" << ilevel << " " << ibox << endl;
+	  m_vtkGrid->SetDataSet(0,0,ug);
+          }
+	  //ug->Delete();
 
 
-	  vtkAMRBox box(smallEnd[0],smallEnd[1],smallEnd[2], bigEnd[0] + 1,bigEnd[1] + 1,bigEnd[2] + 1);
-	  
-	  m_vtkGrid->SetAMRBox(ilevel,ibox,box);
       }
       power2 *= 2;
       spacing /= 2.0;
 
-      m_vtkGrid->SetRefinmentRatio(ilevel,2.0);
+      m_vtkGrid->SetRefinementRatio(0,2.0);
     }
-  vtkAMRUtilities::BlankCells(m_vtkGrid);
+  cerr << "BOUNDS: " << endl;
+  double * bounds;
+  m_vtkGrid->GetBounds(bounds);
+  for(int i=0; i<6; i++) {
+      cerr << "       " << bounds[i] << endl;
+  }
+ cerr << "Printing ONE" << endl;
+  m_vtkGrid->GenerateParentChildInformation();
+  //vtkAMRUtilities::BlankCells(m_vtkGrid);
+  m_vtkGrid->PrintSelf(cerr, vtkIndent(0));
+  cerr << "------------------- " << m_vtkGrid << endl;
 
 }
 void Insitu::addArray(string a_arrayName, int a_arrayID)

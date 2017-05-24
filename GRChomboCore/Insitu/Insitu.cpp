@@ -10,7 +10,7 @@ Insitu::Insitu()
 }
 Insitu::Insitu(GRAMR * a_amr, int a_num_pyScript,string a_pyScript)
 {
-  m_processor = NULL;                                                                                    
+  m_processor = NULL;      
   m_vtkGrid = NULL; 
   this->initialise(a_amr, a_num_pyScript,a_pyScript);
 }
@@ -66,7 +66,7 @@ void Insitu::updateVTKgrid()
 
   int rank;
   MPI_Comm_rank(MPI_COMM_WORLD,&rank);
-
+  /*
   int no_levels = m_amr->finest_level() + 1;
   for(int ilevel=0; ilevel< no_levels; ilevel++) {
       GRAMRLevel *level = (GRAMRLevel *) m_amr->amrlevels(ilevel);
@@ -84,12 +84,79 @@ void Insitu::updateVTKgrid()
           pout () << "updateVTKgrid: Number of boxex " << "Box no " << ibox << " big end " << bigEnd << endl;
       }
   }
-  
-  m_vtkGrid = vtkImageData::New();
-  m_vtkGrid->SetExtent(rank,rank+1,0,10,0,10);
+  */
+  m_vtkGrid = vtkOverlappingAMR::New();
+
+  int numLevels = m_amr->finest_level() + 1; 
+
+  int * blockPerLevel;
+  blockPerLevel = new int[numLevels];
+  for(int ilevel=0; ilevel< numLevels; ilevel++)
+    {
+      GRAMRLevel *level = (GRAMRLevel *) m_amr->amrlevels(ilevel);
+      const DisjointBoxLayout& level_domain = level->m_state_new.disjointBoxLayout();   
+      DataIterator diter(level_domain); 
+      int nbox = diter.size(); //TODO change to the correct iterator
+      blockPerLevel[ilevel] = nbox;
+    }
+  m_vtkGrid.Intialize(numLevels,blockPerLevel);
+
+  int power2 =1;
+  float spacing=1.0;
+  for(int ilevel=0; ilevel< numLevels; ilevel++)
+    {
+      GRAMRLevel *level = (GRAMRLevel *) m_amr->amrlevels(ilevel);
+      const DisjointBoxLayout& level_domain = level->m_state_new.disjointBoxLayout();
+      DataIterator diter(level_domain);
+      
+      for(int ibox = 0; ibox < nbox; ++ibox)
+      {
+          DataIndex di = diter[ibox];
+          const Box& b = level_domain[di];
+          const IntVect& smallEnd = b.smallEnd();
+          const IntVect& bigEnd = b.bigEnd();
+          pout () << "updateVTKgrid: Number of boxex " << "Box no " << ibox << " small end " << smallEnd << endl;
+          pout () << "updateVTKgrid: Number of boxex " << "Box no " << ibox << " big end " << bigEnd << endl;
+      
+	  vtkUniformGrid * ug = vtkUniformGrid::New();
+	  float origin[3];
+	  origin[0]= (float)smallEnd[0] / power2;
+	  origin[1]= (float)smallEnd[1] / power2;
+	  origin[2]= (float)smallEnd[2] / power2;
+	  int extent[3];
+	  extent[0] = bigEnd[0] - smallEnd[0] + 1;
+	  extent[1] = bigEnd[1] - smallEnd[1] + 1;
+	  extent[2] = bigEnd[2] - smallEnd[2] + 1;
+
+	  ug->SetOrigin(origin);
+	  ug->SetSpacing(spacing,spacing,spacing);
+	  ug->SetExtent(0,extent[0],0,extent[1],0,extent[2]);
+
+
+
+	  //TODO loop ofer every non-local box BUT:
+	  // if the box is not local:
+	  // m_vtkGrid->SetDataSet(ilevel,ibox,NULL);
+	  // else:
+	  m_vtkGrid->SetDataSet(ilevel,ibox,ug);
+	  ug->Delete();
+
+
+	  vtkAMRBox box(smallEnd[0],smallEnd[1],smallEnd[2], bigEnd[0] + 1,bigEnd[1] + 1,bigEnd[2] + 1);
+	  
+	  m_vtkGrid->SetAMRBox(ilevel,ibox,box);
+      }
+      power2 *= 2;
+      spacing /= 2.0;
+
+      m_vtkGrid->SetRefinmentRatio(ilevel,2.0);
+    }
+  vtkAMRUtilities::BlankCells(m_vtkGrid);
+
 }
 void Insitu::addArray(string a_arrayName, int a_arrayID)
 {
+  /*
   int rank;
   MPI_Comm_rank(MPI_COMM_WORLD,&rank);
 
@@ -103,7 +170,7 @@ void Insitu::addArray(string a_arrayName, int a_arrayID)
 
   m_vtkGrid->GetPointData()->AddArray(arr);
   arr->Delete();
-
+  */
 }
 void Insitu::updateArrayValues(string a_arrayName, int a_arrayID)
 {

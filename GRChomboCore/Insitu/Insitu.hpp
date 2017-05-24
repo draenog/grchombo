@@ -4,12 +4,17 @@
 #include "../GRAMR.hpp"
 
 #include <vtkCPProcessor.h>
-#include <vtkImageData.h>
+#include <vtkOverlappingAMR.h>
+#include <vtkUniformGrid.h>
+#include <vtkAMRUtilities.h>
+#include <vtkAMRBox.h>
 #include <vtkCPDataDescription.h>
 #include <vtkCPInputDataDescription.h>
 #include <vtkCPPythonScriptPipeline.h>
-#include <vtkDoubleArray.h>
-#include <vtkPointData.h>
+
+
+//#include <vtkDoubleArray.h>
+//#include <vtkPointData.h>
 #include <vtkNew.h>
 
 
@@ -40,7 +45,7 @@ private:
   string m_pyScript;
 
   vtkCPProcessor* m_processor; // static data
-  vtkImageData * m_vtkGrid;
+  vtkOverlappingAMR * m_vtkGrid;
 
 
 };

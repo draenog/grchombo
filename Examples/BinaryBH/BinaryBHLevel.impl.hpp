@@ -15,6 +15,7 @@
 
 //Initial data
 #include "BinaryBH.hpp"
+#include "GRAMR.hpp"
 
 void BinaryBHLevel::specificAdvance()
 {

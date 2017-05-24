@@ -101,6 +101,7 @@ def CreateCoProcessor():
       # finally, restore active source
       SetActiveSource(binaryBH_0000403dhdf5)
       # ----------------------------------------------------------------
+      renderView1.ResetCamera()
     return Pipeline()
 
   class CoProcessor(coprocessing.CoProcessor):

@@ -99,9 +99,9 @@ void Insitu::updateVTKgrid()
       int nbox = diter.size(); //TODO change to the correct iterator
       blockPerLevel[ilevel] = nbox;
     }
-  blockPerLevel[0] = 1;
-  //m_vtkGrid->Initialize(numLevels,blockPerLevel);
-  m_vtkGrid->Initialize(1,blockPerLevel);
+  m_vtkGrid->Initialize(numLevels,blockPerLevel);
+  double origin[3] = {0, 0, 0};
+  m_vtkGrid->SetOrigin(origin);
 
   int power2 =1;
   float spacing=1.0;
@@ -130,11 +130,9 @@ void Insitu::updateVTKgrid()
 	  extent[1] = bigEnd[1] - smallEnd[1] + 1;
 	  extent[2] = bigEnd[2] - smallEnd[2] + 1;
 
-	  //ug->SetOrigin(origin[0],origin[1],origin[2]);
-	  ug->SetOrigin(0, 0, 0);
+	  ug->SetOrigin(origin[0],origin[1],origin[2]);
 	  ug->SetSpacing(spacing,spacing,spacing);
-	  //ug->SetExtent(0,extent[0],0,extent[1],0,extent[2]);
-	  ug->SetExtent(0,10,0,10,0,10);
+	  ug->SetExtent(0,extent[0],0,extent[1],0,extent[2]);
           cerr << "BOUNDS: " << endl;
           double * bounds = ug->GetBounds();
           for(int i=0; i<6; i++) {
@@ -144,22 +142,15 @@ void Insitu::updateVTKgrid()
 
 	  vtkAMRBox box(smallEnd[0],smallEnd[1],smallEnd[2], bigEnd[0] + 1,bigEnd[1] + 1,bigEnd[2] + 1);
 	  
-	  if (ilevel==0 && ibox==0)
-          {
-	  //m_vtkGrid->SetAMRBox(ilevel,ibox,box);
-	  m_vtkGrid->SetAMRBox(0,0,box);
-          }
+	  m_vtkGrid->SetAMRBox(ilevel,ibox,box);
 
 	  //TODO loop ofer every non-local box BUT:
 	  // if the box is not local:
 	  // m_vtkGrid->SetDataSet(ilevel,ibox,NULL);
 	  // else:
-	  if (ilevel==0 && ibox==0)
-          {
           cerr << "MAKING ONE" << ilevel << " " << ibox << endl;
-	  m_vtkGrid->SetDataSet(0,0,ug);
-          }
-	  //ug->Delete();
+	  m_vtkGrid->SetDataSet(ilevel,ibox,ug);
+	  ug->Delete();
 
 
       }
@@ -168,12 +159,6 @@ void Insitu::updateVTKgrid()
 
       m_vtkGrid->SetRefinementRatio(0,2.0);
     }
-  cerr << "BOUNDS: " << endl;
-  double * bounds;
-  m_vtkGrid->GetBounds(bounds);
-  for(int i=0; i<6; i++) {
-      cerr << "       " << bounds[i] << endl;
-  }
  cerr << "Printing ONE" << endl;
   m_vtkGrid->GenerateParentChildInformation();
   //vtkAMRUtilities::BlankCells(m_vtkGrid);

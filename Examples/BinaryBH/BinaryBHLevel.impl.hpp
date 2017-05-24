@@ -66,24 +66,4 @@ void BinaryBHLevel::specificUpdateODE(GRLevelData& a_soln, const GRLevelData& a_
     FABDriver<EnforceTfA>().execute(a_soln, a_soln, FILL_GHOST_CELLS);
 }
 
-void BinaryBHLevel::specificPostTimeStep() {
-    pout () << "Level: " <<  m_level << " calling specificPostTimeStep" << endl;
-    int no_levels = m_amr->finest_level() + 1;
-    for(int ilevel=0; ilevel< no_levels; ilevel++) {
-        GRAMRLevel *level = (GRAMRLevel *) m_amr->amrlevels(ilevel);
-        const DisjointBoxLayout& level_domain = level->m_state_new.disjointBoxLayout();
-        DataIterator diter(level_domain);
-        int nbox = diter.size();
-        pout() << "specificPostTimeStep: Number of boxex " << nbox << endl;
-        for(int ibox = 0; ibox < nbox; ++ibox)
-        {
-            DataIndex di = diter[ibox];
-            const Box& b = level_domain[di];
-            const IntVect& smallEnd = b.smallEnd();
-            const IntVect& bigEnd = b.bigEnd();
-            pout () << "specificPostTimeStep: Number of boxex " << "Box no " << ibox << " small end " << smallEnd << endl;
-            pout () << "specificPostTimeStep: Number of boxex " << "Box no " << ibox << " big end " << bigEnd << endl;
-        }
-    }
-}
 #endif

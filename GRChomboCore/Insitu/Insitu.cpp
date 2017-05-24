@@ -1,5 +1,6 @@
 #include "Insitu.hpp"
 #include "../GRAMR.hpp"
+#include "../GRAMRLevel.hpp"
 
 
 Insitu::Insitu()
@@ -65,6 +66,24 @@ void Insitu::updateVTKgrid()
 
   int rank;
   MPI_Comm_rank(MPI_COMM_WORLD,&rank);
+
+  int no_levels = m_amr->finest_level() + 1;
+  for(int ilevel=0; ilevel< no_levels; ilevel++) {
+      GRAMRLevel *level = (GRAMRLevel *) m_amr->amrlevels(ilevel);
+      const DisjointBoxLayout& level_domain = level->m_state_new.disjointBoxLayout();
+      DataIterator diter(level_domain);
+      int nbox = diter.size();
+      pout() << "updateVTKgrid: Number of boxex " << nbox << endl;
+      for(int ibox = 0; ibox < nbox; ++ibox)
+      {
+          DataIndex di = diter[ibox];
+          const Box& b = level_domain[di];
+          const IntVect& smallEnd = b.smallEnd();
+          const IntVect& bigEnd = b.bigEnd();
+          pout () << "updateVTKgrid: Number of boxex " << "Box no " << ibox << " small end " << smallEnd << endl;
+          pout () << "updateVTKgrid: Number of boxex " << "Box no " << ibox << " big end " << bigEnd << endl;
+      }
+  }
   
   m_vtkGrid = vtkImageData::New();
   m_vtkGrid->SetExtent(rank,rank+1,0,10,0,10);

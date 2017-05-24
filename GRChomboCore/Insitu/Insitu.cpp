@@ -5,13 +5,13 @@
 
 Insitu::Insitu()
 {
-  //  m_processor = NULL;
-  //  m_vtkGrid = NULL;
+  m_processor = NULL;
+  m_vtkGrid = NULL;
 }
 Insitu::Insitu(GRAMR * a_amr, int a_num_pyScript,string a_pyScript)
 {
-  //  m_processor = NULL;                                                                                    
-  //  m_vtkGrid = NULL; 
+  m_processor = NULL;                                                                                    
+  m_vtkGrid = NULL; 
   this->initialise(a_amr, a_num_pyScript,a_pyScript);
 }
 

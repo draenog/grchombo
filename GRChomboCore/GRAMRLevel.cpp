@@ -133,15 +133,15 @@ GRAMRLevel::postTimeStep ()
     }
 
 
-
 #ifdef USE_CATALYST
-    if (m_finer_level_ptr == nullptr || m_level == amr->m_renderLevel)
+    pout () << "Use catalyst in postTimeStep"<< endl;
+    if (m_finer_level_ptr == nullptr || m_level == m_amr->m_renderLevel)
       {
 	//TODO
 
-	m_amr.insitu.updateVTKgrid();
-	m_amr.insitu.addArray("test",0);
-	m_amr.insitu.coprocess();
+	m_amr->m_insitu->updateVTKgrid();
+	m_amr->m_insitu->addArray("test",0);
+	m_amr->m_insitu->coprocess();
 
 	if ( m_verbosity ) pout () << "GRAMRLevel::postTimeStep " << m_level << " calling catalyst done" << endl;
       }

@@ -15,21 +15,23 @@ void GRAMR::setDefaultValues()
 #endif
 }
 
-void GRAMR::conclude() const
+void GRAMR::conclude()
 {
 
   AMR::conclude();
 #ifdef USE_CATALYST
-  m_insitu.finalise();
+  m_insitu->finalise();
 #endif
 
 }
 
 
 #ifdef USE_CATALYST
-void GRAMR::setupCatalyst(int a_num_pyScript = 0, string a_pyScript,int a_renderLevel);
+void GRAMR::setupCatalyst(int a_num_pyScript, string a_pyScript,int a_renderLevel)
 {
-  m_insitu.initialise(this, a_num_pyScript, a_pyScript);
+  pout () << "Setup Catalyst: " << a_pyScript << endl;
+  m_insitu = new Insitu;
+  m_insitu->initialise(this, a_num_pyScript, a_pyScript);
   m_renderLevel = a_renderLevel;
 }
 #endif

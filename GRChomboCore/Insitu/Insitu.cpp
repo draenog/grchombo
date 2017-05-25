@@ -3,7 +3,9 @@
 #include "../GRAMRLevel.hpp"
 #include <vtkAMRInformation.h>
 #include <vtkDoubleArray.h>
-#include <vtkUniformGrid.h>
+#include <vtkCellData.h>
+
+
 
 Insitu::Insitu()
 {
@@ -186,31 +188,16 @@ void Insitu::addArray(string a_arrayName, int a_arrayID)
   for(int ilevel = 0; ilevel < amrinfo->GetNumberOfLevels(); ilevel ++) {
     for(int iblock = 0; iblock < amrinfo->GetNumberOfDataSets(ilevel); iblock++) {
         vtkDoubleArray * arr = vtkDoubleArray::New();
-        vtkUniformGrid *ug = m_vtkGrid->GetDataSet(ilevel, iblock);
+        vtkUniformGrid * ug = m_vtkGrid->GetDataSet(ilevel, iblock);
         arr->SetNumberOfTuples(ug->GetNumberOfCells());
         arr->SetName("Foo");
-        for(vtkIdType  i = 0;i<m_vtkGrid->GetNumberOfPoints();i++)
+        for(vtkIdType  i = 0;i< ug->GetNumberOfCells();i++)
         {
           arr->SetValue(i,100*ilevel+iblock);
         }
         ug->GetCellData()->AddArray(arr);
     }
   }
-  /*
-  int rank;
-  MPI_Comm_rank(MPI_COMM_WORLD,&rank);
-
-  vtkDoubleArray * arr = vtkDoubleArray::New();
-  arr->SetNumberOfTuples(m_vtkGrid->GetNumberOfPoints());
-  arr->SetName(a_arrayName.c_str());
-  for(vtkIdType  i = 0;i<m_vtkGrid->GetNumberOfPoints();i++)
-    {
-      arr->SetValue(i,rank);
-    }
-
-  m_vtkGrid->GetPointData()->AddArray(arr);
-  arr->Delete();
-  */
 }
 void Insitu::updateArrayValues(string a_arrayName, int a_arrayID)
 {

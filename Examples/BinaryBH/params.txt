@@ -37,7 +37,7 @@ tag_buffer_size = 3
 
 checkpoint_interval = 1
 dt_multiplier = 0.5
-stop_time = 10.0
+stop_time = 1.0
 max_steps = 10000000
 
 nan_check = 1
@@ -62,4 +62,4 @@ covariantZ4 = 1 # 0: default. 1: dampk1 -> dampk1/lapse
 
 #coefficient for KO numerical dissipation
 sigma = 0.3
-catalyst_scripts = chombo_catalyst_blocks.py
+catalyst_scripts = save_as_exodus.py

@@ -28,7 +28,6 @@ void Insitu::initialise(GRAMR * a_amr, int a_num_pyScript, string a_pyScript)
 	{
 	  m_num_pyScript = a_num_pyScript;
 	  m_pyScript = a_pyScript;
-	  //TODO: initialise the coprocessor
 	  
 	    if(m_processor == NULL)
 	      {
@@ -100,11 +99,11 @@ void Insitu::updateVTKgrid()
       blockPerLevel[ilevel] = nbox;
     }
   m_vtkGrid->Initialize(numLevels,blockPerLevel);
-  double origin[3] = {0, 0, 0};
-  m_vtkGrid->SetOrigin(origin);
+  double origin_global[3] = {0, 0, 0};
+  m_vtkGrid->SetOrigin(origin_global);
 
   int power2 =1;
-  float spacing=1.0;
+  double spacing=1.0;
   for(int ilevel=0; ilevel< numLevels; ilevel++)
     {
       GRAMRLevel *level = (GRAMRLevel *) m_amr->amrlevels(ilevel);
@@ -120,8 +119,9 @@ void Insitu::updateVTKgrid()
           pout () << "updateVTKgrid: Number of boxex " << "Box no " << ibox << " small end " << smallEnd << endl;
           pout () << "updateVTKgrid: Number of boxex " << "Box no " << ibox << " big end " << bigEnd << endl;
       
+          cerr << "CCCCCCC " << power2 << "  " << spacing << endl;
 	  vtkUniformGrid * ug = vtkUniformGrid::New();
-	  float origin[3];
+	  double origin[3];
 	  origin[0]= (float)smallEnd[0] / power2;
 	  origin[1]= (float)smallEnd[1] / power2;
 	  origin[2]= (float)smallEnd[2] / power2;
@@ -130,17 +130,20 @@ void Insitu::updateVTKgrid()
 	  extent[1] = bigEnd[1] - smallEnd[1] + 1;
 	  extent[2] = bigEnd[2] - smallEnd[2] + 1;
 
-	  ug->SetOrigin(origin[0],origin[1],origin[2]);
+	  //ug->SetOrigin(origin[0],origin[1],origin[2]);
+	  ug->SetOrigin(0,0,0);
 	  ug->SetSpacing(spacing,spacing,spacing);
-	  ug->SetExtent(0,extent[0],0,extent[1],0,extent[2]);
+	  //ug->SetExtent(0,extent[0],0,extent[1],0,extent[2]);
+	  ug->SetExtent(smallEnd[0],bigEnd[0]+1,smallEnd[1],bigEnd[1]+1, smallEnd[2],bigEnd[2]+1);
           cerr << "BOUNDS: " << endl;
           double * bounds = ug->GetBounds();
           for(int i=0; i<6; i++) {
               cerr << "       " << bounds[i] << endl;
           }
 
-
-	  vtkAMRBox box(smallEnd[0],smallEnd[1],smallEnd[2], bigEnd[0] + 1,bigEnd[1] + 1,bigEnd[2] + 1);
+          double spacing_arr[3] = {spacing, spacing, spacing};
+	  //vtkAMRBox box(smallEnd[0],smallEnd[1],smallEnd[2], bigEnd[0] + 1,bigEnd[1] + 1,bigEnd[2] + 1);
+          vtkAMRBox box(origin, extent, spacing_arr, origin_global);
 	  
 	  m_vtkGrid->SetAMRBox(ilevel,ibox,box);
 
@@ -157,13 +160,20 @@ void Insitu::updateVTKgrid()
       power2 *= 2;
       spacing /= 2.0;
 
-      m_vtkGrid->SetRefinementRatio(0,2.0);
+      m_vtkGrid->SetRefinementRatio(ilevel,2);
     }
  cerr << "Printing ONE" << endl;
-  m_vtkGrid->GenerateParentChildInformation();
+ cerr << "BBBBBBBBBBBBBBBBBBBBBBBBBB" << endl;
+  //m_vtkGrid->GenerateParentChildInformation();
   //vtkAMRUtilities::BlankCells(m_vtkGrid);
   m_vtkGrid->PrintSelf(cerr, vtkIndent(0));
-  cerr << "------------------- " << m_vtkGrid << endl;
+  cerr << "AAAAAAAAAAAAAAAAAAAAAAAAAAAA" << m_vtkGrid << endl;
+
+ double bounds[6]; 
+ m_vtkGrid->GetBounds(1,0,bounds);
+ for(int i=0; i<6; i++) {
+     cerr << "Bound AMR " << bounds[i] << endl;
+ }
 
 }
 void Insitu::addArray(string a_arrayName, int a_arrayID)

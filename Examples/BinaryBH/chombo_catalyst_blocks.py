@@ -20,25 +20,25 @@ def CreateCoProcessor():
       # ----------------------------------------------------------------
 
       #### disable automatic camera reset on 'Show'
-      paraview.simple._DisableFirstRenderCameraReset()
+      #paraview.simple._DisableFirstRenderCameraReset()
 
       # Create a new 'Render View'
       renderView1 = CreateView('RenderView')
-      renderView1.ViewSize = [1152, 746]
+      renderView1.ViewSize = [680, 480]
       renderView1.AxesGrid = 'GridAxes3DActor'
-      renderView1.CenterOfRotation = [8.0, 8.0, 8.0]
-      renderView1.StereoType = 0
-      renderView1.CameraPosition = [-29.450727820536308, 22.927530365640546, 55.15155140482592]
-      renderView1.CameraFocalPoint = [4.084304177115667, 8.638918328934205, 15.941192885758536]
-      renderView1.CameraViewUp = [0.125624706805799, 0.9618415880807824, -0.24306211650151405]
-      renderView1.CameraParallelScale = 13.856406460551018
-      renderView1.Background = [0.32, 0.34, 0.43]
+      #renderView1.CenterOfRotation = [8.0, 8.0, 8.0]
+      #renderView1.StereoType = 0
+      renderView1.CameraPosition = [100, 100, 100]
+      renderView1.CameraFocalPoint = [0, 0, 0]
+      #renderView1.CameraViewUp = [0.125624706805799, 0.9618415880807824, -0.24306211650151405]
+      #renderView1.CameraParallelScale = 13.856406460551018
+      #renderView1.Background = [0.32, 0.34, 0.43]
 
       # register the view with coprocessor
       # and provide it with information such as the filename to use,
       # how frequently to write the images, etc.
       coprocessor.RegisterView(renderView1,
-          filename='image_%t.png', freq=5, fittoscreen=0, magnification=1, width=1152, height=746, cinema={})
+          filename='image_%t.png', freq=5, fittoscreen=0, magnification=1, width=680, height=480, cinema={})
       renderView1.ViewTime = datadescription.GetTime()
 
       # ----------------------------------------------------------------
@@ -101,7 +101,7 @@ def CreateCoProcessor():
       # finally, restore active source
       SetActiveSource(binaryBH_0000403dhdf5)
       # ----------------------------------------------------------------
-      renderView1.ResetCamera()
+      #renderView1.ResetCamera()
     return Pipeline()
 
   class CoProcessor(coprocessing.CoProcessor):

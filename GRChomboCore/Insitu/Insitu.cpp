@@ -132,7 +132,7 @@ void Insitu::updateVTKgrid()
 
 	  //ug->SetOrigin(origin[0],origin[1],origin[2]);
 	  ug->SetOrigin(0,0,0);
-	  ug->SetSpacing(spacing,spacing,spacing);
+	  ug->SetSpacing(spacing, spacing, spacing);
 	  //ug->SetExtent(0,extent[0],0,extent[1],0,extent[2]);
 	  ug->SetExtent(smallEnd[0],bigEnd[0]+1,smallEnd[1],bigEnd[1]+1, smallEnd[2],bigEnd[2]+1);
           cerr << "BOUNDS: " << endl;
@@ -157,10 +157,11 @@ void Insitu::updateVTKgrid()
 
 
       }
+      double spacing_arr[3] = {spacing, spacing, spacing};
+      m_vtkGrid->SetRefinementRatio(ilevel,2);
+      m_vtkGrid->SetSpacing(ilevel, spacing_arr);
       power2 *= 2;
       spacing /= 2.0;
-
-      m_vtkGrid->SetRefinementRatio(ilevel,2);
     }
  cerr << "Printing ONE" << endl;
  cerr << "BBBBBBBBBBBBBBBBBBBBBBBBBB" << endl;

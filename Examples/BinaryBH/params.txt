@@ -35,7 +35,7 @@ tag_buffer_size = 3
 # dt will be dx*dt_multiplier on each grid level
 # HDF5files are written every dt = L/N*dt_multiplier*checkpoint_interval
 
-checkpoint_interval = 1
+checkpoint_interval = 100
 dt_multiplier = 0.5
 stop_time = 1.0
 max_steps = 10000000
@@ -62,4 +62,4 @@ covariantZ4 = 1 # 0: default. 1: dampk1 -> dampk1/lapse
 
 #coefficient for KO numerical dissipation
 sigma = 0.3
-catalyst_scripts = chombo_catalyst_blocks.py
+catalyst_scripts = save_as_exodus.py

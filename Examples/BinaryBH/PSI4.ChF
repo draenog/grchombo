@@ -1,0 +1,460 @@
+C      _______              __
+C     / ___/ /  ___  __ _  / /  ___
+C    / /__/ _ \/ _ \/  V \/ _ \/ _ \
+C    \___/_//_/\___/_/_/_/_.__/\___/
+C    Please refer to Copyright.txt, in Chombo's root directory.
+
+#include "CONSTANTS.H"
+
+c     Vector indices
+#define _1  0
+#define _2  1
+#define _3  2
+c     Tensor indices
+#define _11 0
+#define _12 1
+#define _13 2
+#define _22 3
+#define _23 4
+#define _33 5
+
+#define SQRT2 0.7071067811865475244
+
+c     Calculate the Hamiltonian and momentum constraints
+      subroutine GETPSI4(
+      !--- {{{1
+      !--- {{{2 Function input and variable initialisation
+     &     CHF_FRA1[GPsi4r],
+     &     CHF_FRA1[GPsi4i],
+     &     CHF_CONST_FRA1[chi],
+     &     CHF_CONST_FRA[h],
+     &     CHF_CONST_FRA1[K],
+     &     CHF_CONST_FRA[A],
+     &     CHF_CONST_REAL[dx],
+     &     CHF_CONST_REAL[centerx],
+     &     CHF_CONST_REAL[centery],
+     &     CHF_CONST_REAL[centerz],
+     &     CHF_BOX[box])
+
+      ! Fundamental variables
+      REAL_T              ch, hh(0:2,0:2), hu(0:2,0:2), trk, aa(0:2,0:2), gamma(0:2),
+     &                    au(0:2,0:2), dethh
+      REAL_T              phi, pi
+
+      ! First derivatives
+      REAL_T              d1_ch(0:2), d1_hh(0:2,0:2,0:2), d1_trk(0:2), d1_aa(0:2,0:2,0:2),
+     &                    d1_gamma(0:2,0:2)
+
+      ! Second derivatives
+      REAL_T              d2_ch(0:2,0:2), d2_hh(0:2,0:2,0:2,0:2)
+
+      ! Variables for Psi4
+      REAL_T gg(0:2,0:2), gu(0:2,0:2), trA, Kij(0:2,0:2), chSafe
+      REAL_T d1_gg(0:2,0:2,0:2), d2_gg(0:2,0:2,0:2,0:2)
+      REAL_T d1_Kij(0:2,0:2,0:2)
+      REAL_T epsilon_tensor(0:2,0:2,0:2)
+      REAL_T v1(0:2),v2(0:2),v3(0:2)
+      REAL_T omega11,omega12,omega22,omega13,omega23,omega33
+      REAL_T ltet(0:2),n(0:2),im(0:2),rm(0:2),rmbar(0:2),imbar(0:2),nn
+      REAL_T chris(0:2,0:2,0:2)
+      REAL_T riemann(0:2,0:2,0:2,0:2)
+      REAL_T R4p(0:2,0:2,0:2,0:2)
+      REAL_T Ro(0:2,0:2,0:2)
+      REAL_T Rojo(0:2,0:2)
+      REAL_T Psi4r,Psi4i
+
+      ! Misc variables
+      REAL_T              odx12, odxsq12, odxsq144
+      REAL_T              odx60, ody60, odz60, odxsq180, odysq180, odzsq180,
+     &                    odxdy3600, odxdz3600, odydz3600
+      REAL_T              dx12, dy12, dz12, dxsq12, dysq12, dzsq12,
+     &                    dxdy144, dxdz144, dydz144
+      REAL_T x,y,z
+
+
+      integer CHF_AUTODECL[i], CHF_AUTODECL[ii], CHF_AUTODECL[jj]
+
+      integer d0, d1, d2, d3, d4, d5, d6
+      integer IDX(0:2, 0:2)
+      data IDX / _11, _12, _13, _12, _22, _23, _13, _23, _33  /
+      !2}}}
+
+c     note that this has not been extended to work for DIM > 3
+#if CH_SPACEDIM > 3
+      call MAYDAY_ERROR()
+#else
+
+      dx12      = 12*dx
+      odx12     = one/(12*dx)
+      odxsq12   = one / (12*dx**2)
+      odxsq144  = one / (144*dx**2)
+
+      !-------------------------------------------
+      !------------ Main loop starts here --------
+!$omp PARALLEL DO DEFAULT(FIRSTPRIVATE) COLLAPSE(3),
+!$omp& SCHEDULE(STATIC),
+!$omp& SHARED(GPsi4r,GPsi4i,chi,h,K,A)
+      CHF_AUTOMULTIDO[box;i]
+
+      x = (i0*dx - centerx)
+      y = (i1*dx - centery)
+      z = (i2*dx - centerz)
+
+      !------------ Get local variables -----------
+      ch    = chi(CHF_AUTOIX[i])
+      chSafe= max(ch,1e-5)
+
+      trk   = K(CHF_AUTOIX[i])
+
+      do d0 = 0,2
+        do d1 = 0,2
+          hh(d0,d1) = h(CHF_AUTOIX[i], IDX(d0,d1))
+          aa(d0,d1) = A(CHF_AUTOIX[i], IDX(d0,d1))
+        enddo
+      enddo
+      !-------------------------------------------
+
+      !------------ Invert metric ----------------
+      ! NOTE: deth = 1 by construction, but that is not satisfied numerically
+      dethh =        hh(0,0) * hh(1,1) * hh(2,2)
+     &         + 2 * hh(0,1) * hh(0,2) * hh(1,2)
+     &         -     hh(0,0) * hh(1,2) ** 2
+     &         -     hh(1,1) * hh(0,2) ** 2
+     &         -     hh(2,2) * hh(0,1) ** 2
+      hu(0,0) = (hh(1,1) * hh(2,2) - hh(1,2) ** 2     ) / dethh
+      hu(1,1) = (hh(0,0) * hh(2,2) - hh(0,2) ** 2     ) / dethh
+      hu(2,2) = (hh(0,0) * hh(1,1) - hh(0,1) ** 2     ) / dethh
+      hu(0,1) = (hh(0,2) * hh(1,2) - hh(0,1) * hh(2,2)) / dethh
+      hu(0,2) = (hh(0,1) * hh(1,2) - hh(0,2) * hh(1,1)) / dethh
+      hu(1,2) = (hh(0,2) * hh(0,1) - hh(1,2) * hh(0,0)) / dethh
+      hu(1,0) = hu(0,1)
+      hu(2,0) = hu(0,2)
+      hu(2,1) = hu(1,2)
+
+      !-------------------------------------------
+
+
+      !------------ Centered 1st derivatives -----{{{2
+      !------------ derivative index is last -----
+      do d0 = 0,2
+        CHF_DTERM[
+          ii0 = CHF_ID(d0,0);
+          ii1 = CHF_ID(d0,1);
+          ii2 = CHF_ID(d0,2)]
+
+        d1_ch(d0) = odx12 * (
+     &         chi(CHF_OFFSETIX[i;-2*ii])
+     &     - 8*chi(CHF_OFFSETIX[i;-ii]  )
+     &     + 8*chi(CHF_OFFSETIX[i;+ii]  )
+     &     -   chi(CHF_OFFSETIX[i;+2*ii])
+     &       )
+
+        d1_trk(d0) = odx12 * (
+     &         K(CHF_OFFSETIX[i;-2*ii])
+     &     - 8*K(CHF_OFFSETIX[i;-ii]  )
+     &     + 8*K(CHF_OFFSETIX[i;+ii]  )
+     &     -   K(CHF_OFFSETIX[i;+2*ii])
+     &       )
+      enddo
+
+      do d0 = 0,2; do d1 = 0,2; do d2 = 0,CH_SPACEDIM-1
+           CHF_DTERM[
+             ii0 = CHF_ID(d2,0);
+             ii1 = CHF_ID(d2,1);
+             ii2 = CHF_ID(d2,2)]
+
+            d1_hh(d0,d1,d2) = odx12 * (
+     &         h(CHF_OFFSETIX[i;-2*ii],IDX(d0,d1))
+     &     - 8*h(CHF_OFFSETIX[i;-ii]  ,IDX(d0,d1))
+     &     + 8*h(CHF_OFFSETIX[i;+ii]  ,IDX(d0,d1))
+     &     -   h(CHF_OFFSETIX[i;+2*ii],IDX(d0,d1))
+     &       )
+
+            d1_aa(d0,d1,d2) = odx12 * (
+     &         A(CHF_OFFSETIX[i;-2*ii],IDX(d0,d1))
+     &     - 8*A(CHF_OFFSETIX[i;-ii]  ,IDX(d0,d1))
+     &     + 8*A(CHF_OFFSETIX[i;+ii]  ,IDX(d0,d1))
+     &     -   A(CHF_OFFSETIX[i;+2*ii],IDX(d0,d1))
+     &       )
+      enddo; enddo; enddo
+      !--------------------------------------------------2}}}
+
+      !------------ Centered 2nd derivatives ------------{{{2
+      !------------ derivative indices are last ---------
+      do d0 = 0,CH_SPACEDIM-1; do d1 = 0,CH_SPACEDIM-1
+           CHF_DTERM[
+             ii0 = CHF_ID(d0,0);
+             ii1 = CHF_ID(d0,1);
+             ii2 = CHF_ID(d0,2)]
+           CHF_DTERM[
+             jj0 = CHF_ID(d1,0);
+             jj1 = CHF_ID(d1,1);
+             jj2 = CHF_ID(d1,2)]
+           ! before we had: if (d0 .eq. d1) cycle
+           if (d0 .eq. d1) cycle
+
+           d2_ch(d0,d1) = odxsq144 * (
+     &         chi(CHF_IX[i0-2*ii0-2*jj0;i1-2*ii1-2*jj1;i2-2*ii2-2*jj2])
+     &     - 8*chi(CHF_IX[i0-ii0-2*jj0;i1-ii1-2*jj1;i2-ii2-2*jj2]      )
+     &     + 8*chi(CHF_IX[i0+ii0-2*jj0;i1+ii1-2*jj1;i2+ii2-2*jj2]      )
+     &     -   chi(CHF_IX[i0+2*ii0-2*jj0;i1+2*ii1-2*jj1;i2+2*ii2-2*jj2])
+     &     - 8*chi(CHF_IX[i0-2*ii0-jj0;i1-2*ii1-jj1;i2-2*ii2-jj2]      )
+     &     +64*chi(CHF_IX[i0-ii0-jj0;i1-ii1-jj1;i2-ii2-jj2]            )
+     &     -64*chi(CHF_IX[i0+ii0-jj0;i1+ii1-jj1;i2+ii2-jj2]            )
+     &     + 8*chi(CHF_IX[i0+2*ii0-jj0;i1+2*ii1-jj1;i2+2*ii2-jj2]      )
+     &     + 8*chi(CHF_IX[i0-2*ii0+jj0;i1-2*ii1+jj1;i2-2*ii2+jj2]      )
+     &     -64*chi(CHF_IX[i0-ii0+jj0;i1-ii1+jj1;i2-ii2+jj2]            )
+     &     +64*chi(CHF_IX[i0+ii0+jj0;i1+ii1+jj1;i2+ii2+jj2]            )
+     &     - 8*chi(CHF_IX[i0+2*ii0+jj0;i1+2*ii1+jj1;i2+2*ii2+jj2]      )
+     &     -   chi(CHF_IX[i0-2*ii0+2*jj0;i1-2*ii1+2*jj1;i2-2*ii2+2*jj2])
+     &     + 8*chi(CHF_IX[i0-ii0+2*jj0;i1-ii1+2*jj1;i2-ii2+2*jj2]      )
+     &     - 8*chi(CHF_IX[i0+ii0+2*jj0;i1+ii1+2*jj1;i2+ii2+2*jj2]      )
+     &     +   chi(CHF_IX[i0+2*ii0+2*jj0;i1+2*ii1+2*jj1;i2+2*ii2+2*jj2])
+     &       )
+         enddo; enddo
+
+         do d0 = 0,CH_SPACEDIM-1
+           CHF_DTERM[
+             ii0 = CHF_ID(d0,0);
+             ii1 = CHF_ID(d0,1);
+             ii2 = CHF_ID(d0,2)]
+
+           d2_ch(d0,d0) = odxsq12 * (
+     &         -chi(CHF_OFFSETIX[i;-2*ii])
+     &     + 16*chi(CHF_OFFSETIX[i;-ii]  )
+     &     - 30*chi(CHF_AUTOIX[i]        )
+     &     + 16*chi(CHF_OFFSETIX[i;+ii]  )
+     &     -    chi(CHF_OFFSETIX[i;+2*ii])
+     &       )
+         enddo
+
+         do d0 = 0,2; do d1 = 0,2; do d2 = 0,CH_SPACEDIM-1; do d3 = 0,CH_SPACEDIM-1
+           CHF_DTERM[
+             ii0 = CHF_ID(d2,0);
+             ii1 = CHF_ID(d2,1);
+             ii2 = CHF_ID(d2,2)]
+           CHF_DTERM[
+             jj0 = CHF_ID(d3,0);
+             jj1 = CHF_ID(d3,1);
+             jj2 = CHF_ID(d3,2)]
+
+           if (d2 .eq. d3) cycle
+
+           d2_hh(d0,d1,d2,d3) = odxsq144 * (
+     &         h(CHF_IX[i0-2*ii0-2*jj0;i1-2*ii1-2*jj1;i2-2*ii2-2*jj2],IDX(d0,d1))
+     &     - 8*h(CHF_IX[i0-ii0-2*jj0;i1-ii1-2*jj1;i2-ii2-2*jj2]      ,IDX(d0,d1))
+     &     + 8*h(CHF_IX[i0+ii0-2*jj0;i1+ii1-2*jj1;i2+ii2-2*jj2]      ,IDX(d0,d1))
+     &     -   h(CHF_IX[i0+2*ii0-2*jj0;i1+2*ii1-2*jj1;i2+2*ii2-2*jj2],IDX(d0,d1))
+     &     - 8*h(CHF_IX[i0-2*ii0-jj0;i1-2*ii1-jj1;i2-2*ii2-jj2]      ,IDX(d0,d1))
+     &     +64*h(CHF_IX[i0-ii0-jj0;i1-ii1-jj1;i2-ii2-jj2]            ,IDX(d0,d1))
+     &     -64*h(CHF_IX[i0+ii0-jj0;i1+ii1-jj1;i2+ii2-jj2]            ,IDX(d0,d1))
+     &     + 8*h(CHF_IX[i0+2*ii0-jj0;i1+2*ii1-jj1;i2+2*ii2-jj2]      ,IDX(d0,d1))
+     &     + 8*h(CHF_IX[i0-2*ii0+jj0;i1-2*ii1+jj1;i2-2*ii2+jj2]      ,IDX(d0,d1))
+     &     -64*h(CHF_IX[i0-ii0+jj0;i1-ii1+jj1;i2-ii2+jj2]            ,IDX(d0,d1))
+     &     +64*h(CHF_IX[i0+ii0+jj0;i1+ii1+jj1;i2+ii2+jj2]            ,IDX(d0,d1))
+     &     - 8*h(CHF_IX[i0+2*ii0+jj0;i1+2*ii1+jj1;i2+2*ii2+jj2]      ,IDX(d0,d1))
+     &     -   h(CHF_IX[i0-2*ii0+2*jj0;i1-2*ii1+2*jj1;i2-2*ii2+2*jj2],IDX(d0,d1))
+     &     + 8*h(CHF_IX[i0-ii0+2*jj0;i1-ii1+2*jj1;i2-ii2+2*jj2]      ,IDX(d0,d1))
+     &     - 8*h(CHF_IX[i0+ii0+2*jj0;i1+ii1+2*jj1;i2+ii2+2*jj2]      ,IDX(d0,d1))
+     &     +   h(CHF_IX[i0+2*ii0+2*jj0;i1+2*ii1+2*jj1;i2+2*ii2+2*jj2],IDX(d0,d1))
+     &       )
+         enddo; enddo; enddo; enddo
+
+         do d0 = 0,2; do d1 = 0,2; do d2 = 0,CH_SPACEDIM-1
+           CHF_DTERM[
+             ii0 = CHF_ID(d2,0);
+             ii1 = CHF_ID(d2,1);
+             ii2 = CHF_ID(d2,2)]
+
+           d2_hh(d0,d1,d2,d2) = odxsq12 * (
+     &         -h(CHF_OFFSETIX[i;-2*ii],IDX(d0,d1))
+     &     + 16*h(CHF_OFFSETIX[i;-ii]  ,IDX(d0,d1))
+     &     - 30*h(CHF_AUTOIX[i]        ,IDX(d0,d1))
+     &     + 16*h(CHF_OFFSETIX[i;+ii]  ,IDX(d0,d1))
+     &     -    h(CHF_OFFSETIX[i;+2*ii],IDX(d0,d1))
+     &       )
+         enddo; enddo; enddo
+         !--------------------------------------------------2}}}
+
+
+      !----------- g, Kij and other necessary quantities {{{2
+      !TODO: Correct for deth \neq 1 if necessary
+      gg = hh/ch
+      gu = hu*ch
+
+      trA = 0
+      do d0=0,2
+         do d1=0,2
+            trA = trA + hu(d0,d1)*aa(d0,d1)
+         enddo
+      enddo
+
+      Kij = aa/chSafe + (trk - trA) * gg / 3.d0
+
+      !First derivative of gg
+      do d0=0,2
+         d1_gg(:,:,d0) = (d1_hh(:,:,d0) - ( hh(:,:) * d1_ch(d0) )/chSafe )/chSafe
+      enddo
+
+      !Second derivative of gg
+      do d0=0,2; do d1=0,2
+         d2_gg(:,:,d0,d1) = ( d2_hh(:,:,d0,d1) +
+     &             ( - d1_hh(:,:,d0)*d1_ch(d1) + d1_hh(:,:,d1)*d1_ch(d0)
+     &               + 2*hh*d1_ch(d0)*d1_ch(d1)/chSafe - hh * d2_ch(d0,d1)
+     &             )/chSafe
+     &           )/chSafe
+      enddo; enddo
+
+      !First derivative of K
+      do d0=0,2
+         d1_Kij(:,:,d0) = (d1_aa(:,:,d0) - aa * d1_ch(d0)/chSafe)/chSafe
+     &            + (d1_trK(d0) * gg + trk * d1_gg(:,:,d0))/3.d0
+      enddo
+
+      !null tetrad !gr-qc/0104063 !mostly copied from etk's weylscal4.m
+
+      !the alternating tensor
+      epsilon_tensor = 0
+      epsilon_tensor(0,1,2) = -1
+      epsilon_tensor(1,2,0) = -1
+      epsilon_tensor(2,0,1) = -1
+      epsilon_tensor(0,2,1) = 1
+      epsilon_tensor(1,0,2) = 1
+      epsilon_tensor(2,1,0) = 1
+
+      !non-orthogonal basis
+      v1 = (/ -y, x, 0.d0 /);
+      v2 = (/  x, y, z /);
+      v3 = 0;
+
+      do d0=0,2; do d1=0,2; do d2=0,2
+         v3 = v3 + ch**(-1.5d0)*gu(:,d0)*epsilon_tensor(d0,d1,d2)*v1(d1)*v2(d2)
+      enddo; enddo; enddo
+
+      !gram-schmidt
+      omega11 = 0
+      do d0=0,2; do d1=0,2
+         omega11 = omega11 + v1(d0)*v1(d1)*gg(d0,d1)
+      enddo; enddo
+      omega11 = max(1.e-13, omega11)
+      v1 = v1/sqrt(omega11)
+
+      omega12 = 0
+      do d0=0,2; do d1=0,2
+         omega12 = omega12 + v1(d0)*v2(d1)*gg(d0,d1)
+      enddo; enddo
+      v2 = v2 - omega12*v1
+
+      omega22 = 0
+      do d0=0,2; do d1=0,2
+         omega22 = omega22 + v2(d0)*v2(d1)*gg(d0,d1)
+      enddo; enddo
+      omega22 = max(1.e-13, omega22)
+      v2 = v2/sqrt(omega22)
+
+      omega13 = 0
+      omega23 = 0
+      do d0=0,2; do d1=0,2
+         omega13 = omega13 + v1(d0)*v3(d1)*gg(d0,d1)
+         omega23 = omega23 + v2(d0)*v3(d1)*gg(d0,d1)
+      enddo; enddo
+      v3 = v3 - (omega13*v1 + omega23*v2)
+
+      omega33 = 0
+      do d0=0,2; do d1=0,2
+         omega33 = omega33 + v3(d0)*v3(d1)*gg(d0,d1)
+      enddo; enddo
+      omega33 = max(1.e-13, omega33)
+      v3 = v3/sqrt(omega33)
+
+      !As defined in ETK's code: spacial portion of null tetrad
+#define SQRT2 0.7071067811865475244
+      ltet =   SQRT2*v2
+      n    = - SQRT2*v2
+      rm   =   SQRT2*v3
+      im   =   SQRT2*v1
+      rmbar=   SQRT2*v3
+      imbar= - SQRT2*v1
+
+      nn   = SQRT2
+      !---2}}}
+
+      !--- Christoffels of the physical metric {{{2
+      chris = 0
+      do d0=0,2; do d1=0,2; do d2=0,2; do d3=0,2
+         chris(d0,d1,d2) = chris(d0,d1,d2) + 0.5d0 * gu(d0,d3) *
+     &                ( d1_gg(d1,d3,d2) + d1_gg(d2,d3,d1) - d1_gg(d1,d2,d3) )
+      enddo; enddo; enddo; enddo
+      !--- 2}}}
+
+      !--- Riemann of the physical metric {{{2
+      riemann = 0
+      do d0=0,2; do d1=0,2; do d2=0,2; do d3=0,2
+         riemann(d0,d1,d2,d3) = (
+     &                 (d2_gg(d0,d3,d2,d1) + d2_gg(d1,d2,d3,d0)) / 2.0
+     &               - (d2_gg(d0,d2,d1,d3) + d2_gg(d1,d3,d0,d2)) / 2.0
+     &               )
+         do d4=0,2; do d5=0,2
+            riemann(d0,d1,d2,d3) = riemann(d0,d1,d2,d3) + (
+     &               gg(d5,d4) * chris(d5,d1,d2) * chris(d4,d0,d3)
+     &               - gg(d5,d4) * chris(d5,d1,d3) * chris(d4,d0,d2)
+     &               )
+         enddo; enddo
+      enddo; enddo; enddo; enddo
+      !--- 2}}}
+
+      !--- Gauss equation {{{2
+      R4p = 0
+      do d0=0,2; do d1=0,2; do d2=0,2; do d3=0,2
+         R4p(d0,d1,d2,d3) = riemann(d0,d1,d2,d3) + Kij(d0,d2) * Kij(d3,d1) - Kij(d0,d3) * Kij(d2,d1)
+      enddo; enddo; enddo; enddo
+      !--- 2}}}
+
+      !--- Codazzi equation {{{2
+      Ro = 0
+      do d0=0,2; do d1=0,2; do d2=0,2
+         Ro(d0,d1,d2) = - ( d1_Kij(d0,d1,d2) - d1_Kij(d0,d2,d1) )
+         do d3=0,2
+            Ro(d0,d1,d2) = Ro(d0,d1,d2) - ( chris(d3,d0,d1) * Kij(d2,d3) - chris(d3,d0,d2) * Kij(d1,d3) )
+         enddo
+      enddo; enddo; enddo
+      !--- 2}}}
+
+      !--- Projections are fun so let's do some more {{{2
+      Rojo = 0
+      do d0=0,2; do d1=0,2; do d2=0,2; do d3=0,2
+         Rojo(d0,d1) = Rojo(d0,d1) +
+     &      gu(d2,d3) * ( riemann(d0,d2,d1,d3) - Kij(d0,d2) * Kij(d3,d1) + Kij(d0,d1) * Kij(d2,d3) )
+      enddo; enddo; enddo; enddo
+      !---2}}}
+
+      !--- The grand finale: Psi4 {{{2
+      Psi4r = 0;
+      Psi4i = 0;
+      do d0=0,2; do d1=0,2;
+         do d2=0,2
+            do d3=0,2
+                    Psi4r = Psi4r + R4p(d0,d1,d2,d3) * n(d0) * n(d2) * (  rmbar(d1) * rmbar(d3) - imbar(d1) * imbar(d3) )
+                    Psi4i = Psi4i + R4p(d0,d1,d2,d3) * n(d0) * n(d2) * ( -rm(d1)    * im(d3)    - im(d1)    * rm(d3)    )
+            enddo
+            Psi4r = Psi4r + 2*Ro(d0,d1,d2) * n(d1) * nn * (  rmbar(d0) * rmbar(d2) - imbar(d0) * imbar(d2) )
+            Psi4i = Psi4i + 2*Ro(d0,d1,d2) * n(d1) * nn * ( -rm(d0)    * im(d2)    - im(d0)    * rm(d2)    )
+         enddo
+         Psi4r = Psi4r + Rojo(d0,d1) * nn * nn * (  rmbar(d0) * rmbar(d1) - imbar(d0) * imbar(d1) )
+         Psi4i = Psi4i + Rojo(d0,d1) * nn * nn * ( -rm(d0)    * im(d1)    - im(d0)    * rm(d1)    )
+      enddo; enddo
+      !--- Everything must end at some point 2}}}
+
+      !------------ Write to grid functions ------
+      GPsi4r(CHF_AUTOIX[i])  = Psi4r
+      GPsi4i(CHF_AUTOIX[i])  = Psi4i
+      !-------------------------------------------
+
+      CHF_ENDDO
+!$omp END PARALLEL DO
+#endif
+
+      return
+      end
+      !--- 1}}}
+

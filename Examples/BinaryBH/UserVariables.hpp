@@ -8,7 +8,8 @@ enum
 {
     c_chi,
 
-    c_h11, //Symmetric tensor must be declared in this order TODO: make this error proof by autogeneration or a macro.
+    c_h,
+    c_h11 = c_h, //Symmetric tensor must be declared in this order TODO: make this error proof by autogeneration or a macro.
     c_h12,
     c_h13,
     c_h22,
@@ -17,7 +18,8 @@ enum
 
     c_K,
 
-    c_A11,
+    c_A,
+    c_A11 = c_A,
     c_A12,
     c_A13,
     c_A22,
@@ -98,5 +100,6 @@ namespace UserVariables
         "Psi4i"
     };
 }
+
 
 #endif /* USERVARIABLES_HPP */

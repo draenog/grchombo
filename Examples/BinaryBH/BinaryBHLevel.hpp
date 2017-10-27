@@ -9,6 +9,9 @@ class BinaryBHLevel : public GRAMRLevel
     //Inherit the contructors from GRAMRLevel
     using GRAMRLevel::GRAMRLevel;
 
+    static const int s_num_comps_h;
+    static const int s_num_comps_A;
+
     virtual
     void specificAdvance();
 

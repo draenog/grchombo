@@ -46,6 +46,9 @@ enum
     c_Mom2,
     c_Mom3,
 
+    c_Psi4r,
+    c_Psi4i,
+
     c_NUM
 };
 
@@ -90,7 +93,9 @@ namespace UserVariables
         "Ham",
         "Mom1",
         "Mom2",
-        "Mom3"
+        "Mom3",
+        "Psi4r",
+        "Psi4i"
     };
 }
 

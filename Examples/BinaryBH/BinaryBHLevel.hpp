@@ -27,6 +27,8 @@ class BinaryBHLevel : public GRAMRLevel
 
     virtual
     void specificUpdateODE(GRLevelData& a_soln, const GRLevelData& a_rhs, Real a_dt);
+
+    void getPsi4();
 };
 
 #include "BinaryBHLevel.impl.hpp"

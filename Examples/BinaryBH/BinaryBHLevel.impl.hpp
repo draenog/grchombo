@@ -70,6 +70,11 @@ void BinaryBHLevel::preCheckpointLevel()
     fillAllGhosts();
     FABDriver<Constraints>(m_dx).execute(m_state_new, m_state_new, SKIP_GHOST_CELLS);
 
+    getPsi4();
+}
+
+void BinaryBHLevel::getPsi4()
+{
 // Copy caluclation of Psi4 from old code
     const DisjointBoxLayout& level_domain = m_state_new.disjointBoxLayout();
     DataIterator dit0 = level_domain.dataIterator();

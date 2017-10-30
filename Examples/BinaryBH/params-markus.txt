@@ -5,9 +5,9 @@ chk_prefix = Psi_
 # Set up grid spacings and regrid params 
 # NB - the N values need to be multiples of block_factor
 
-N1 = 256
-N2 = 256
-N3 = 256
+N1 = 128
+N2 = 128
+N3 = 128
 L = 512 #100
 
 massA = 1

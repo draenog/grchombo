@@ -27,6 +27,8 @@ public:
       bool stop = false;
       FORVARS(i)
       {
+          if(UserVariables::variable_names[i] == "Psi4r" || UserVariables::variable_names[i] == "Psi4i")
+              continue;
           double val;
           m_driver.local_vars(val,current_cell,i);
           if ( std::isnan(val) || abs(val) > m_max_abs) stop = true;

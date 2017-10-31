@@ -63,7 +63,7 @@ def CreateCoProcessor():
       slice1.SliceOffsetValues = [0.0]
 
       # init the 'Plane' selected for 'SliceType'
-      slice1.SliceType.Origin = [16.0, 16.0, 16.0]
+      slice1.SliceType.Origin = [8.0, 8.0, 8.0]
 
       # ----------------------------------------------------------------
       # setup color maps and opacity mapes used in the visualization

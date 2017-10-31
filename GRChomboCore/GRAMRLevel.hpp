@@ -163,12 +163,13 @@ public:
     // periodicity information
     //  static const int s_periodicity[SpaceDim];
 
+    // grid spacing
+    Real m_dx;
+
 protected:
     // state vector at old time
     GRLevelData m_state_old;
     // state vector at new time
-    // grid spacing
-    Real m_dx;
 
     // params
     SimulationParameters m_p;

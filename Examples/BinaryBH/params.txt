@@ -62,4 +62,4 @@ covariantZ4 = 1 # 0: default. 1: dampk1 -> dampk1/lapse
 
 #coefficient for KO numerical dissipation
 sigma = 0.3
-catalyst_scripts = grchombo.py
+catalyst_scripts = slice.py

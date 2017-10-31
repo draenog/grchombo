@@ -186,14 +186,30 @@ void Insitu::addArray(string a_arrayName, int a_arrayID)
   vtkAMRInformation * amrinfo = m_vtkGrid->GetAMRInfo();
 
   for(int ilevel = 0; ilevel < amrinfo->GetNumberOfLevels(); ilevel ++) {
+    GRAMRLevel *level = (GRAMRLevel *) m_amr->amrlevels(ilevel);
+    const DisjointBoxLayout& level_domain = level->m_state_new.disjointBoxLayout();
+    DataIterator diter = level_domain.dataIterator();
+    cerr << "Add array " << amrinfo->GetNumberOfDataSets(ilevel) << " " << diter.size() << endl;
     for(int iblock = 0; iblock < amrinfo->GetNumberOfDataSets(ilevel); iblock++) {
+        DataIndex di = diter[iblock];
+        const Box& b = level_domain[di];
+        FArrayBox& stat_fab = level->m_state_new[di];
+        cerr << "DDDDDDDDDD number of components " << stat_fab.nComp() << endl;
+        const double* data = stat_fab.dataPtr(0);
+        const IntVect lowcorner = b.smallEnd();
+        const IntVect topcorner = b.bigEnd();
         vtkDoubleArray * arr = vtkDoubleArray::New();
         vtkUniformGrid * ug = m_vtkGrid->GetDataSet(ilevel, iblock);
         arr->SetNumberOfTuples(ug->GetNumberOfCells());
-        arr->SetName("Foo");
-        for(vtkIdType  i = 0;i< ug->GetNumberOfCells();i++)
-        {
-          arr->SetValue(i,100*ilevel+iblock);
+        arr->SetName("chi");
+        size_t index = 0;
+        for(int iz = lowcorner[2]; iz <= topcorner[2]; iz++) {
+            for(int iy = lowcorner[1]; iy <= topcorner[1]; iy++) {
+                for(int ix = lowcorner[0]; ix <= topcorner[0]; ix++) {
+                    IntVect vect(ix, iy, iz);
+                    arr->SetValue(index++, stat_fab(vect, 0));
+                }
+            }
         }
         ug->GetCellData()->AddArray(arr);
     }

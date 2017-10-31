@@ -106,11 +106,10 @@ void Insitu::updateVTKgrid()
   double origin_global[3] = {0, 0, 0};
   m_vtkGrid->SetOrigin(origin_global);
 
-  int power2 =1;
-  double spacing=1.0;
   for(int ilevel=0; ilevel< numLevels; ilevel++)
     {
       GRAMRLevel *level = (GRAMRLevel *) m_amr->amrlevels(ilevel);
+      const Real spacing = level->m_dx;
       const DisjointBoxLayout& level_domain = level->m_state_new.disjointBoxLayout();
       DataIterator diter(level_domain);
       int nbox = diter.size();
@@ -123,12 +122,12 @@ void Insitu::updateVTKgrid()
           pout () << "updateVTKgrid: Number of boxex " << "Box no " << ibox << " small end " << smallEnd << endl;
           pout () << "updateVTKgrid: Number of boxex " << "Box no " << ibox << " big end " << bigEnd << endl;
       
-          cerr << "CCCCCCC " << power2 << "  " << spacing << endl;
+	  cerr << "CCCCCCC " << spacing << endl;
 	  vtkUniformGrid * ug = vtkUniformGrid::New();
 	  double origin[3];
-	  origin[0]= (float)smallEnd[0] / power2;
-	  origin[1]= (float)smallEnd[1] / power2;
-	  origin[2]= (float)smallEnd[2] / power2;
+	  origin[0]= (float)smallEnd[0] * spacing;
+	  origin[1]= (float)smallEnd[1] * spacing;
+	  origin[2]= (float)smallEnd[2] * spacing;
 	  int extent[3];
 	  extent[0] = bigEnd[0] - smallEnd[0] + 1;
 	  extent[1] = bigEnd[1] - smallEnd[1] + 1;
@@ -164,8 +163,6 @@ void Insitu::updateVTKgrid()
       double spacing_arr[3] = {spacing, spacing, spacing};
       m_vtkGrid->SetRefinementRatio(ilevel,2);
       m_vtkGrid->SetSpacing(ilevel, spacing_arr);
-      power2 *= 2;
-      spacing /= 2.0;
     }
  cerr << "Printing ONE" << endl;
  cerr << "BBBBBBBBBBBBBBBBBBBBBBBBBB" << endl;

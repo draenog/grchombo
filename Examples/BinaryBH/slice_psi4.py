@@ -33,7 +33,7 @@ def CreateCoProcessor():
       renderView1.AxesGrid = 'GridAxes3DActor'
       renderView1.CenterOfRotation = [8.000000357627869, 7.9999998807907104, 7.9999998807907104]
       renderView1.StereoType = 0
-      renderView1.CameraPosition = [-44.28693572039778, 32.9189499985499, -21.98701208656384]
+      renderView1.CameraPosition = [-35.21234350850901, 28.59417353183135, -16.782654637684114]
       renderView1.CameraFocalPoint = [8.000000357627878, 7.999999880790722, 7.999999880790728]
       renderView1.CameraViewUp = [-0.4820464441025623, 0.04167586691431631, 0.8751538995199732]
       renderView1.CameraParallelScale = 16.881071476306236
@@ -65,22 +65,29 @@ def CreateCoProcessor():
       # init the 'Plane' selected for 'SliceType'
       slice1.SliceType.Origin = [8.0, 8.0, 8.0]
 
+      # create a new 'Calculator'
+      calculator1 = Calculator(Input=slice1)
+      calculator1.AttributeMode = 'Cell Data'
+      calculator1.ResultArrayName = 'Psi4_mag'
+      calculator1.Function = 'sqrt(Psi4r^2 + Psi4i^2)'
+
       # ----------------------------------------------------------------
       # setup color maps and opacity mapes used in the visualization
       # note: the Get..() functions create a new object, if needed
       # ----------------------------------------------------------------
 
-      # get color transfer function/color map for 'Psi4i'
-      psi4iLUT = GetColorTransferFunction('Psi4i')
-      psi4iLUT.RGBPoints = [-0.0042669, 0.0, 0.0, 1.0, 0.00011554757687758967, 0.0, 1.0, 0.5254901960784314, 0.00028984946907215873, 0.9098039215686274, 1.0, 0.0, 0.003999989999999999, 1.0, 0.0, 0.0]
-      psi4iLUT.ColorSpace = 'HSV'
-      psi4iLUT.NanColor = [0.498039215686, 0.498039215686, 0.498039215686]
-      psi4iLUT.ScalarRangeInitialized = 1.0
+      # get color transfer function/color map for 'Psi4_mag'
+      psi4_magLUT = GetColorTransferFunction('Psi4_mag')
+      psi4_magLUT.RGBPoints = [9.705938678127315e-05, 0.0, 0.0, 1.0, 0.04425295113860145, 1.0, 0.0, 0.0]
+      psi4_magLUT.UseLogScale = 1
+      psi4_magLUT.ColorSpace = 'HSV'
+      psi4_magLUT.NanColor = [0.498039215686, 0.498039215686, 0.498039215686]
+      psi4_magLUT.ScalarRangeInitialized = 1.0
 
-      # get opacity transfer function/opacity map for 'Psi4i'
-      psi4iPWF = GetOpacityTransferFunction('Psi4i')
-      psi4iPWF.Points = [-0.0042669, 0.0, 0.5, 0.0, 0.003999989999999999, 1.0, 0.5, 0.0]
-      psi4iPWF.ScalarRangeInitialized = 1
+      # get opacity transfer function/opacity map for 'Psi4_mag'
+      psi4_magPWF = GetOpacityTransferFunction('Psi4_mag')
+      psi4_magPWF.Points = [9.70593867812732e-05, 0.0, 0.5, 0.0, 0.044252951138601414, 1.0, 0.5, 0.0]
+      psi4_magPWF.ScalarRangeInitialized = 1
 
       # ----------------------------------------------------------------
       # setup the visualization in view 'renderView1'
@@ -102,40 +109,40 @@ def CreateCoProcessor():
       binaryBH_0000003dhdf5Display.PolarAxes = 'PolarAxesRepresentation'
       binaryBH_0000003dhdf5Display.ScalarOpacityUnitDistance = 0.610711830985561
 
-      # show data from slice1
-      slice1Display = Show(slice1, renderView1)
+      # show data from calculator1
+      calculator1Display = Show(calculator1, renderView1)
       # trace defaults for the display properties.
-      slice1Display.Representation = 'Surface'
-      slice1Display.ColorArrayName = ['CELLS', 'Psi4i']
-      slice1Display.LookupTable = psi4iLUT
-      slice1Display.OSPRayScaleArray = 'Psi4i'
-      slice1Display.OSPRayScaleFunction = 'PiecewiseFunction'
-      slice1Display.SelectOrientationVectors = 'None'
-      slice1Display.ScaleFactor = 1.6
-      slice1Display.SelectScaleArray = 'None'
-      slice1Display.GlyphType = 'Arrow'
-      slice1Display.GlyphTableIndexArray = 'None'
-      slice1Display.DataAxesGrid = 'GridAxesRepresentation'
-      slice1Display.PolarAxes = 'PolarAxesRepresentation'
-      slice1Display.GaussianRadius = 0.8
-      slice1Display.SetScaleArray = [None, '']
-      slice1Display.ScaleTransferFunction = 'PiecewiseFunction'
-      slice1Display.OpacityArray = [None, '']
-      slice1Display.OpacityTransferFunction = 'PiecewiseFunction'
+      calculator1Display.Representation = 'Surface'
+      calculator1Display.ColorArrayName = ['CELLS', 'Psi4_mag']
+      calculator1Display.LookupTable = psi4_magLUT
+      calculator1Display.OSPRayScaleArray = 'Psi4i'
+      calculator1Display.OSPRayScaleFunction = 'PiecewiseFunction'
+      calculator1Display.SelectOrientationVectors = 'None'
+      calculator1Display.ScaleFactor = 1.6
+      calculator1Display.SelectScaleArray = 'None'
+      calculator1Display.GlyphType = 'Arrow'
+      calculator1Display.GlyphTableIndexArray = 'None'
+      calculator1Display.DataAxesGrid = 'GridAxesRepresentation'
+      calculator1Display.PolarAxes = 'PolarAxesRepresentation'
+      calculator1Display.GaussianRadius = 0.8
+      calculator1Display.SetScaleArray = [None, '']
+      calculator1Display.ScaleTransferFunction = 'PiecewiseFunction'
+      calculator1Display.OpacityArray = [None, '']
+      calculator1Display.OpacityTransferFunction = 'PiecewiseFunction'
 
       # show color legend
-      slice1Display.SetScalarBarVisibility(renderView1, True)
+      calculator1Display.SetScalarBarVisibility(renderView1, True)
 
       # setup the color legend parameters for each legend in this view
 
-      # get color legend/bar for psi4iLUT in view renderView1
-      psi4iLUTColorBar = GetScalarBar(psi4iLUT, renderView1)
-      psi4iLUTColorBar.Title = 'Psi4i'
-      psi4iLUTColorBar.ComponentTitle = ''
+      # get color legend/bar for psi4_magLUT in view renderView1
+      psi4_magLUTColorBar = GetScalarBar(psi4_magLUT, renderView1)
+      psi4_magLUTColorBar.Title = 'Psi4_mag'
+      psi4_magLUTColorBar.ComponentTitle = ''
 
       # ----------------------------------------------------------------
       # finally, restore active source
-      SetActiveSource(slice1)
+      SetActiveSource(calculator1)
       # ----------------------------------------------------------------
     return Pipeline()
 
@@ -145,7 +152,7 @@ def CreateCoProcessor():
 
   coprocessor = CoProcessor()
   # these are the frequencies at which the coprocessor updates.
-  freqs = {'input': [1, 1]}
+  freqs = {'input': [1, 1, 1]}
   coprocessor.SetUpdateFrequencies(freqs)
   return coprocessor
 

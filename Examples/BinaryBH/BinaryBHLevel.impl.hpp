@@ -69,9 +69,17 @@ void BinaryBHLevel::preCheckpointLevel()
 {
     fillAllGhosts();
     FABDriver<Constraints>(m_dx).execute(m_state_new, m_state_new, SKIP_GHOST_CELLS);
-
     getPsi4();
 }
+
+#ifdef USE_CATALYST
+void BinaryBHLevel::specificPostTimeStep() {
+    fillAllGhosts();
+    FABDriver<Constraints>(m_dx).execute(m_state_new, m_state_new, SKIP_GHOST_CELLS);
+    pout() << "WWWWWWW: Inside specificPostTimeStep " << m_level << endl;
+    getPsi4();
+}
+#endif
 
 void BinaryBHLevel::getPsi4()
 {

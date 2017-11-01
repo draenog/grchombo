@@ -196,22 +196,28 @@ void Insitu::addArray(string a_arrayName, int a_arrayID)
         const double* data = stat_fab.dataPtr(0);
         const IntVect lowcorner = b.smallEnd();
         const IntVect topcorner = b.bigEnd();
-        vtkDoubleArray * arr = vtkDoubleArray::New();
         vtkUniformGrid * ug = m_vtkGrid->GetDataSet(ilevel, iblock);
-        arr->SetNumberOfTuples(ug->GetNumberOfCells());
-        arr->SetName("Psi4i");
+        vtkDoubleArray * arr_psi4r = vtkDoubleArray::New();
+        vtkDoubleArray * arr_psi4i = vtkDoubleArray::New();
+        arr_psi4r->SetNumberOfTuples(ug->GetNumberOfCells());
+        arr_psi4i->SetNumberOfTuples(ug->GetNumberOfCells());
+        arr_psi4r->SetName("Psi4r");
+        arr_psi4i->SetName("Psi4i");
         size_t index = 0;
         double maxval = -1.e299;
         for(int iz = lowcorner[2]; iz <= topcorner[2]; iz++) {
             for(int iy = lowcorner[1]; iy <= topcorner[1]; iy++) {
                 for(int ix = lowcorner[0]; ix <= topcorner[0]; ix++) {
                     IntVect vect(ix, iy, iz);
-                    arr->SetValue(index++, stat_fab(vect, c_Psi4i));
+                    arr_psi4r->SetValue(index, stat_fab(vect, c_Psi4r));
+                    arr_psi4i->SetValue(index, stat_fab(vect, c_Psi4i));
                     maxval = std::max(maxval, stat_fab(vect, c_Psi4i));
+                    index++;
                 }
             }
         }
-        ug->GetCellData()->AddArray(arr);
+        ug->GetCellData()->AddArray(arr_psi4r);
+        ug->GetCellData()->AddArray(arr_psi4i);
     }
   }
 }

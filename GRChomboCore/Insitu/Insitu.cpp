@@ -204,7 +204,7 @@ void Insitu::addArray(string a_arrayName, int a_arrayID)
             for(int iy = lowcorner[1]; iy <= topcorner[1]; iy++) {
                 for(int ix = lowcorner[0]; ix <= topcorner[0]; ix++) {
                     IntVect vect(ix, iy, iz);
-                    arr->SetValue(index++, stat_fab(vect, 0));
+                    arr->SetValue(index++, stat_fab(vect, c_chi));
                 }
             }
         }

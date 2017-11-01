@@ -132,11 +132,12 @@ GRAMRLevel::postTimeStep ()
         finer_gr_amr_level_ptr->m_coarse_average.averageToCoarse (m_state_new, finer_gr_amr_level_ptr->m_state_new);
     }
 
+    specificPostTimeStep();
 
 #ifdef USE_CATALYST
-    pout () << "Use catalyst in postTimeStep"<< endl;
     if (m_finer_level_ptr == nullptr || m_level == m_amr->m_renderLevel)
       {
+        pout () << "Use catalyst in postTimeStep "<< m_level << endl;
 	//TODO
 
 	m_amr->m_insitu->updateVTKgrid();
@@ -146,8 +147,6 @@ GRAMRLevel::postTimeStep ()
 	if ( m_verbosity ) pout () << "GRAMRLevel::postTimeStep " << m_level << " calling catalyst done" << endl;
       }
 #endif
-
-    specificPostTimeStep();
 
     if ( m_verbosity ) pout () << "GRAMRLevel::postTimeStep " << m_level << " finished" << endl;
 }

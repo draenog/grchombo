@@ -184,6 +184,7 @@ void Insitu::addArray(string a_arrayName, int a_arrayID)
 
   for(int ilevel = 0; ilevel < amrinfo->GetNumberOfLevels(); ilevel ++) {
     GRAMRLevel *level = (GRAMRLevel *) m_amr->amrlevels(ilevel);
+    level->specificPostTimeStep();
     const DisjointBoxLayout& level_domain = level->m_state_new.disjointBoxLayout();
     DataIterator diter = level_domain.dataIterator();
     cerr << "Add array " << amrinfo->GetNumberOfDataSets(ilevel) << " " << diter.size() << endl;
@@ -198,13 +199,15 @@ void Insitu::addArray(string a_arrayName, int a_arrayID)
         vtkDoubleArray * arr = vtkDoubleArray::New();
         vtkUniformGrid * ug = m_vtkGrid->GetDataSet(ilevel, iblock);
         arr->SetNumberOfTuples(ug->GetNumberOfCells());
-        arr->SetName("chi");
+        arr->SetName("Psi4i");
         size_t index = 0;
+        double maxval = -1.e299;
         for(int iz = lowcorner[2]; iz <= topcorner[2]; iz++) {
             for(int iy = lowcorner[1]; iy <= topcorner[1]; iy++) {
                 for(int ix = lowcorner[0]; ix <= topcorner[0]; ix++) {
                     IntVect vect(ix, iy, iz);
-                    arr->SetValue(index++, stat_fab(vect, c_chi));
+                    arr->SetValue(index++, stat_fab(vect, c_Psi4i));
+                    maxval = std::max(maxval, stat_fab(vect, c_Psi4i));
                 }
             }
         }

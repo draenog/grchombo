@@ -23,6 +23,9 @@ class BinaryBHLevel : public GRAMRLevel
     void preCheckpointLevel();
 
     virtual
+    void specificWritePlotHeader(std::vector<int> &plot_states) const;
+
+    virtual
     void specificEvalRHS(GRLevelData& a_soln, GRLevelData& a_rhs, const double a_time);
 
     virtual

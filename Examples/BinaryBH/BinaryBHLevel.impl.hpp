@@ -115,6 +115,11 @@ void BinaryBHLevel::getPsi4()
 
 }
 
+void BinaryBHLevel::specificWritePlotHeader(std::vector<int> &plot_states) const
+{
+    plot_states = {c_chi, c_Psi4r, c_Psi4i};
+}
+
 void BinaryBHLevel::specificEvalRHS(GRLevelData& a_soln, GRLevelData& a_rhs, const double a_time)
 {
     FABDriver<EnforceTfA>().execute(a_soln, a_soln, FILL_GHOST_CELLS);

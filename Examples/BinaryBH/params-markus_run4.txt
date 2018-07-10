@@ -2,7 +2,7 @@ verbosity = 1
 chk_prefix = Psi_wo_catalyst_
 plot_prefix = Plot_wo_catalyst_
 #restart_file = IntelBHMerger_000275.3d.hdf5
-restart_file = Psi_wo_catalyst_000240.3d.hdf5
+restart_file = Psi_wo_catalyst_000600.3d.hdf5
 
 # Set up grid spacings and regrid params 
 # NB - the N values need to be multiples of block_factor
@@ -30,8 +30,8 @@ centerB = 264.2 256 256
 #momentumB = 0. 0.141 0.0
 #
 #Merges:
-momentumA = 0. -0.140 0.0
-momentumB = 0. 0.140 0.0
+momentumA = 0. -0.135 0.0
+momentumB = 0. 0.135 0.0
 
 
 #Current attempt
@@ -60,7 +60,7 @@ tag_buffer_size = 3
 checkpoint_interval = 20
 plot_interval = 4
 dt_multiplier = 0.5
-stop_time = 600.0
+stop_time = 1200.0
 max_steps = 10000000
 
 nan_check = 1

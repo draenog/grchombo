@@ -10,7 +10,7 @@ ebase := GRChombo_BinaryBH
 
 LibNames := AMRTimeDependent AMRTools BoxTools
 
-src_dirs := ../../utils ../../simd ../../CCZ4 ../../InitialConditions/BlackHoles ../../FABDriver ../../GRChomboCore
+src_dirs := ../../utils ../../simd ../../CCZ4 ../../InitialConditions/BlackHoles ../../FABDriver ../../GRChomboCore ../../GRChomboCore/Insitu
 ifdef USE_CATALYST
 src_dirs += ../../GRChomboCore/Insitu
 CATALYST_HOME := /nfs/software/apps/paraview/5.2.0-catalyst

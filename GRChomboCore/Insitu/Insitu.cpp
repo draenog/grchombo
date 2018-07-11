@@ -241,7 +241,7 @@ void Insitu::coprocess()
   int size;
   MPI_Comm_size(MPI_COMM_WORLD,&size);
 
-  cout<<"call: Insitu::coprocess"<<endl;
+  pout() <<"call: Insitu::coprocess"<<endl;
   
   vtkNew<vtkCPDataDescription> dataDescription;
   dataDescription->AddInput("input");
@@ -254,6 +254,7 @@ void Insitu::coprocess()
       dataDescription->GetInputDescriptionByName("input")->SetWholeExtent(0,size,0,10,0,10);
       m_processor->CoProcess(dataDescription.GetPointer());
     }
+  pout() <<"ending: Insitu::coprocess"<<endl;
 }
 
 void Insitu::finalise()

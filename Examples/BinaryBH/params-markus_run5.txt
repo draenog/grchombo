@@ -2,7 +2,7 @@ verbosity = 1
 chk_prefix = Psi_wo_catalyst_
 plot_prefix = Plot_wo_catalyst_
 #restart_file = IntelBHMerger_000275.3d.hdf5
-restart_file = Psi_wo_catalyst_000480.3d.hdf5
+#restart_file = Psi_wo_catalyst_000480.3d.hdf5
 
 # Set up grid spacings and regrid params 
 # NB - the N values need to be multiples of block_factor
@@ -88,4 +88,5 @@ covariantZ4 = 1 # 0: default. 1: dampk1 -> dampk1/lapse
 
 #coefficient for KO numerical dissipation
 sigma = 0.3
-catalyst_scripts = /nfs/home/users/dc-korn1/GRChombo/Examples/BinaryBH/slice.py
+catalyst_scripts = /home/kk562/GRChombo/grchombo_old/Examples/BinaryBH/slice.py
+renderLevel = 4

@@ -88,5 +88,5 @@ covariantZ4 = 1 # 0: default. 1: dampk1 -> dampk1/lapse
 
 #coefficient for KO numerical dissipation
 sigma = 0.3
-catalyst_scripts = /home/kk562/GRChombo/grchombo_old/Examples/BinaryBH/mypipeline.py
+catalyst_scripts = /projects/InSituVis2018/GRChombo/GRChombo_old/Examples/BinaryBH/newpipeline.py
 renderLevel = 4

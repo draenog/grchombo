@@ -212,17 +212,9 @@ void Insitu::addArray(string a_arrayName, int a_arrayID)
         pout() << "Corners: " << topcorner[2] << " " << topcorner[1] << " " << topcorner[0] << endl;
         pout() << "Corners: " << ilevel << " " << iblock << ": " << lowcorner_ghost[2] << " " << lowcorner_ghost[1] << " " << lowcorner_ghost[0] << endl;
         pout() << "Corners: " << topcorner_ghost[2] << " " << topcorner_ghost[1] << " " << topcorner_ghost[0] << endl;
-        for(int iz = lowcorner[2]; iz <= topcorner[2]; iz++) {
-            for(int iy = lowcorner[1]; iy <= topcorner[1]; iy++) {
-                for(int ix = lowcorner[0]; ix <= topcorner[0]; ix++) {
-                    IntVect vect(ix, iy, iz);
-                    arr_psi4r->SetValue(index, stat_fab(vect, c_Psi4r));
-                    arr_psi4i->SetValue(index, stat_fab(vect, c_Psi4i));
-                    maxval = std::max(maxval, stat_fab(vect, c_Psi4i));
-                    index++;
-                }
-            }
-        }
+        pout() << "Size: " << ug->GetNumberOfCells() << endl;
+        arr_psi4r->SetArray(stat_fab.dataPtr(c_Psi4r), static_cast<vtkIdType>(ug->GetNumberOfCells()), 1);
+        arr_psi4i->SetArray(stat_fab.dataPtr(c_Psi4i), static_cast<vtkIdType>(ug->GetNumberOfCells()), 1);
         ug->GetCellData()->AddArray(arr_psi4r);
         ug->GetCellData()->AddArray(arr_psi4i);
     }

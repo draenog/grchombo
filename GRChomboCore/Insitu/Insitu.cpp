@@ -143,6 +143,7 @@ void Insitu::updateVTKgrid()
               pout() << "       " << bounds[i] << endl;
           }
 
+
           double spacing_arr[3] = {spacing, spacing, spacing};
 	  //vtkAMRBox box(smallEnd[0],smallEnd[1],smallEnd[2], bigEnd[0] + 1,bigEnd[1] + 1,bigEnd[2] + 1);
           vtkAMRBox box(origin, extent, spacing_arr, origin_global);
@@ -155,6 +156,16 @@ void Insitu::updateVTKgrid()
 	  // else:
           cerr << "MAKING ONE" << ilevel << " " << ibox << endl;
 	  m_vtkGrid->SetDataSet(ilevel,ibox,ug);
+          int visible = 0;
+          for(int ix = 0; ix < extent[0]/2; ix++) {
+	      for(int iy = 0; iy < extent[1]; iy++) {
+                  for(int iz = 0; iz < extent[2]; iz++) {
+                      ug->BlankCell(ix, iy, iz);
+                      visible++;
+                  }
+              }
+          }
+          pout() << "MAKING ONE" << ilevel << " " << ibox << " " << visible << endl;
 	  ug->Delete();
 
 
@@ -213,6 +224,13 @@ void Insitu::addArray(string a_arrayName, int a_arrayID)
         pout() << "Corners: " << ilevel << " " << iblock << ": " << lowcorner_ghost[2] << " " << lowcorner_ghost[1] << " " << lowcorner_ghost[0] << endl;
         pout() << "Corners: " << topcorner_ghost[2] << " " << topcorner_ghost[1] << " " << topcorner_ghost[0] << endl;
         pout() << "Size: " << ug->GetNumberOfCells() << endl;
+        pout() << "Blanks: " << ug->HasAnyBlankCells() << endl;
+        int visible = 0;
+        for(int i=0; i < ug->GetNumberOfCells(); i++) {
+             if(!ug->IsCellVisible(i))
+                 visible++;        
+        }
+        pout() << "Cell visible:" << visible << " " << ug->GetNumberOfCells() << endl;
         arr_psi4r->SetArray(stat_fab.dataPtr(c_Psi4r), static_cast<vtkIdType>(ug->GetNumberOfCells()), 1);
         arr_psi4i->SetArray(stat_fab.dataPtr(c_Psi4i), static_cast<vtkIdType>(ug->GetNumberOfCells()), 1);
         ug->GetCellData()->AddArray(arr_psi4r);

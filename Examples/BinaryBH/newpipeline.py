@@ -79,7 +79,7 @@ def CreateCoProcessor():
       slice1.SliceOffsetValues = [0.0]
 
       # init the 'Plane' selected for 'SliceType'
-      slice1.SliceType.Origin = [256.0, 256.0, 256.0]
+      slice1.SliceType.Origin = [256.0, 256.0, 8.0]
       slice1.SliceType.Normal = [0.0, 0.0, 1.0]
 
       # ----------------------------------------------------------------

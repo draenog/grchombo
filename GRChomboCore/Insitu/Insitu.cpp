@@ -110,13 +110,13 @@ void Insitu::updateVTKgrid()
     {
       GRAMRLevel *level = (GRAMRLevel *) m_amr->amrlevels(ilevel);
       const Real spacing = level->m_dx;
-      const DisjointBoxLayout& level_domain = level->m_state_new.disjointBoxLayout();
-      DataIterator diter(level_domain);
+      const GRLevelData& boxes_with_ghosts = level->m_state_new;
+      DataIterator diter = boxes_with_ghosts.dataIterator();
       int nbox = diter.size();
       for(int ibox = 0; ibox < nbox; ++ibox)
       {
           DataIndex di = diter[ibox];
-          const Box& b = level_domain[di];
+          const FArrayBox& b = boxes_with_ghosts[di];
           const IntVect& smallEnd = b.smallEnd();
           const IntVect& bigEnd = b.bigEnd();
           pout () << "updateVTKgrid: Number of boxex " << "Box no " << ibox << " small end " << smallEnd << endl;
@@ -190,7 +190,7 @@ void Insitu::addArray(string a_arrayName, int a_arrayID)
     cerr << "Add array " << amrinfo->GetNumberOfDataSets(ilevel) << " " << diter.size() << endl;
     for(int iblock = 0; iblock < amrinfo->GetNumberOfDataSets(ilevel); iblock++) {
         DataIndex di = diter[iblock];
-        const Box& b = level_domain[di];
+        const FArrayBox& b = boxes_with_ghosts[di];
         const FArrayBox& b_ghost = boxes_with_ghosts[di];
         FArrayBox& stat_fab = level->m_state_new[di];
         cerr << "DDDDDDDDDD number of components " << stat_fab.nComp() << endl;

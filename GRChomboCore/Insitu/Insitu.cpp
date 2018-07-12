@@ -122,7 +122,6 @@ void Insitu::updateVTKgrid()
           pout () << "updateVTKgrid: Number of boxex " << "Box no " << ibox << " small end " << smallEnd << endl;
           pout () << "updateVTKgrid: Number of boxex " << "Box no " << ibox << " big end " << bigEnd << endl;
       
-	  cerr << "CCCCCCC " << spacing << endl;
 	  vtkUniformGrid * ug = vtkUniformGrid::New();
 	  double origin[3];
 	  origin[0]= (float)smallEnd[0] * spacing;
@@ -186,16 +185,21 @@ void Insitu::addArray(string a_arrayName, int a_arrayID)
     GRAMRLevel *level = (GRAMRLevel *) m_amr->amrlevels(ilevel);
     level->specificPostTimeStep();
     const DisjointBoxLayout& level_domain = level->m_state_new.disjointBoxLayout();
+    const GRLevelData& boxes_with_ghosts = level->m_state_new;
+    DataIterator diter_ghost = boxes_with_ghosts.dataIterator();
     DataIterator diter = level_domain.dataIterator();
     cerr << "Add array " << amrinfo->GetNumberOfDataSets(ilevel) << " " << diter.size() << endl;
     for(int iblock = 0; iblock < amrinfo->GetNumberOfDataSets(ilevel); iblock++) {
         DataIndex di = diter[iblock];
         const Box& b = level_domain[di];
+        const FArrayBox& b_ghost = boxes_with_ghosts[di];
         FArrayBox& stat_fab = level->m_state_new[di];
         cerr << "DDDDDDDDDD number of components " << stat_fab.nComp() << endl;
         const double* data = stat_fab.dataPtr(0);
         const IntVect lowcorner = b.smallEnd();
         const IntVect topcorner = b.bigEnd();
+        const IntVect lowcorner_ghost = b_ghost.smallEnd();
+        const IntVect topcorner_ghost = b_ghost.bigEnd();
         vtkUniformGrid * ug = m_vtkGrid->GetDataSet(ilevel, iblock);
         vtkDoubleArray * arr_psi4r = vtkDoubleArray::New();
         vtkDoubleArray * arr_psi4i = vtkDoubleArray::New();
@@ -205,6 +209,10 @@ void Insitu::addArray(string a_arrayName, int a_arrayID)
         arr_psi4i->SetName("Psi4i");
         size_t index = 0;
         double maxval = -1.e299;
+        pout() << "Corners: " << ilevel << " " << iblock << ": " << lowcorner[2] << " " << lowcorner[1] << " " << lowcorner[0] << endl;
+        pout() << "Corners: " << topcorner[2] << " " << topcorner[1] << " " << topcorner[0] << endl;
+        pout() << "Corners: " << ilevel << " " << iblock << ": " << lowcorner_ghost[2] << " " << lowcorner_ghost[1] << " " << lowcorner_ghost[0] << endl;
+        pout() << "Corners: " << topcorner_ghost[2] << " " << topcorner_ghost[1] << " " << topcorner_ghost[0] << endl;
         for(int iz = lowcorner[2]; iz <= topcorner[2]; iz++) {
             for(int iy = lowcorner[1]; iy <= topcorner[1]; iy++) {
                 for(int ix = lowcorner[0]; ix <= topcorner[0]; ix++) {

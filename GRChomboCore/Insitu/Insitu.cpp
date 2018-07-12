@@ -140,7 +140,7 @@ void Insitu::updateVTKgrid()
           cerr << "BOUNDS: " << endl;
           double * bounds = ug->GetBounds();
           for(int i=0; i<6; i++) {
-              cerr << "       " << bounds[i] << endl;
+              pout() << "       " << bounds[i] << endl;
           }
 
           double spacing_arr[3] = {spacing, spacing, spacing};

@@ -186,8 +186,7 @@ void Insitu::addArray(string a_arrayName, int a_arrayID)
     level->specificPostTimeStep();
     const DisjointBoxLayout& level_domain = level->m_state_new.disjointBoxLayout();
     const GRLevelData& boxes_with_ghosts = level->m_state_new;
-    DataIterator diter_ghost = boxes_with_ghosts.dataIterator();
-    DataIterator diter = level_domain.dataIterator();
+    DataIterator diter = boxes_with_ghosts.dataIterator();
     cerr << "Add array " << amrinfo->GetNumberOfDataSets(ilevel) << " " << diter.size() << endl;
     for(int iblock = 0; iblock < amrinfo->GetNumberOfDataSets(ilevel); iblock++) {
         DataIndex di = diter[iblock];
